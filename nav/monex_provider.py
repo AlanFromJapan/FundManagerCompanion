@@ -12,12 +12,13 @@ class MonexProvider(NAVProvider):
 
         # Send a GET request to the page
         request_url = url + fund.codes['yahoo_finance']
-        print (request_url)
-        response = requests.get(request_url)
-        response.raise_for_status()
+        page_content = NAVProvider.get_page(request_url)
 
         # Parse the HTML content
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(page_content, 'html.parser')
+
+        # Parse the HTML content
+        soup = BeautifulSoup(page_content, 'html.parser')
 
         price_tag = soup.find('span', class_="price")
         last_price = float(price_tag.get_text(strip=True).replace(',', ''))

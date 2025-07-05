@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from threading import Lock
+import requests
 
 class NAVProvider(ABC):
     _instance = None
@@ -18,3 +19,9 @@ class NAVProvider(ABC):
         Return a tuple (price, date) for the latest known NAV of the given fund.
         """
         pass
+
+    @staticmethod
+    def get_page(url):
+        response = requests.get(url, timeout=3)
+        response.raise_for_status()
+        return response.text

@@ -11,11 +11,12 @@ class YahooFinProvider(NAVProvider):
     def get_latest_nav(self, fund):
 
         # Send a GET request to the page
-        response = requests.get(url + fund.codes['yahoo_finance'])
-        response.raise_for_status()
+
+        request_url = url + fund.codes['yahoo_finance']
+        page_content = NAVProvider.get_page(request_url)
 
         # Parse the HTML content
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(page_content, 'html.parser')
 
         # Find the <p> tag with class="price__1VJb"
         price_tag = soup.find('p', class_="price__1VJb")
