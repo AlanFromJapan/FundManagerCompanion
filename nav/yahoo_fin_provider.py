@@ -1,0 +1,41 @@
+from nav_provider import NAVProvider
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
+
+
+url = "https://finance.yahoo.co.jp/quote/"
+
+
+class YahooFinProvider(NAVProvider):
+    def get_latest_nav(self, fund):
+
+        # Send a GET request to the page
+        response = requests.get(url + fund.codes['yahoo_finance'])
+        response.raise_for_status()
+
+        # Parse the HTML content
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Find the <p> tag with class="price__1VJb"
+        price_tag = soup.find('p', class_="price__1VJb")
+        last_price = float(price_tag.get_text(strip=True).replace(',', ''))
+        
+        last_date = soup.find('p', class_="updateDate__r1Qf")
+        #format is "MM/DD"
+        if last_date:
+            current_year = datetime.now().year
+            last_date = last_date.get_text(strip=True)
+            last_date = f"{current_year }/{last_date}" #YYYY/MM/DD
+            last_date = datetime.strptime(last_date, "%Y/%m/%d")
+
+        #returns (date, price)
+        return (last_date, last_price)
+
+
+if __name__ == "__main__":
+    # Example usage
+    provider = YahooFinProvider()
+    fund = type('Fund', (object,), {'codes': {'yahoo_finance': '03311112'}})  # Mock fund object
+    nav = provider.get_latest_nav(fund)
+    print(f"The latest NAV for the fund is: {nav}")

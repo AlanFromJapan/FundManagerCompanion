@@ -48,6 +48,17 @@ PRIMARY KEY (FundID, System)
 )
 ''')
 
+cur.execute('''
+CREATE TABLE IF NOT EXISTS "FUND_NAV" (
+FundID INTEGER,
+AtDate TEXT,
+Currency TEXT DEFAULT "JPY",
+NAV FLOAT,
+PRIMARY KEY (FundID, AtDate, Currency)
+)
+''')
+
+
 
 # Read CSV and get headers
 with open(csv_path, newline='', encoding='utf-8') as csvfile:
