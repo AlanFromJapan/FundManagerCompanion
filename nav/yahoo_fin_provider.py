@@ -1,4 +1,4 @@
-from nav_provider import NAVProvider
+from nav.nav_provider import NAVProvider
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime

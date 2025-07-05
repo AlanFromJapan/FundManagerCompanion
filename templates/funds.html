@@ -9,7 +9,7 @@
     {% for fund in funds %}
     <tr>
         <td>{{ fund.fund_id }}</td>
-        <td>{{ fund.name }}</td>
+        <td><a href="/funds/{{ fund.fund_id }}">{{ fund.name }}</a></td>
         <td>{{ fund.currency }}</td>
             <td>
                 {% if fund.codes %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Funds Detail{% endblock %}
+
+{% block content %}
+<h2>Funds List</h2>
+<table>
+    <tr>
+        <td>Fund UID</td><td>{{ fund.fund_id }}</td>
+    </tr>
+    <tr>
+        <td>Name</td>
+        <td>{{ fund.name }}</td>
+    </tr>
+    <tr>
+        <td>Currency</td>
+        <td>{{ fund.currency }}</td>
+    </tr>
+    <tr>
+        <td>Codes</td>
+        <td>
+            {% if fund.codes %}
+                <ul>
+                    {% for code, value in fund.codes.items() %}
+                        <li>{{ code }}: {{ value }} 
+                            {% if code == 'yahoo_finance' %}
+                            <a href="https://fund.monex.co.jp/detail/{{value}}">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}">Y</a> 
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                No codes available
+            {% endif %}
+        </td>
+    </tr>
+</table>
+{% endblock %}
+
+    
