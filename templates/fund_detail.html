@@ -24,7 +24,7 @@
                     {% for code, value in fund.codes.items() %}
                         <li>{{ code }}: {{ value }} 
                             {% if code == 'yahoo_finance' %}
-                            <a href="https://fund.monex.co.jp/detail/{{value}}">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}">Y</a> 
+                            <a href="https://fund.monex.co.jp/detail/{{value}}" target="_blank">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}" target="_blank">Y</a> 
                             {% endif %}
                         </li>
                     {% endfor %}
@@ -35,6 +35,29 @@
         </td>
     </tr>
 </table>
+
+<form method="post" action="/funds/{{ fund.fund_id }}">
+    <input type="hidden" name="update_nav" value="true">
+    <input type="submit" value="Update NAV">
+</form>
+
+{% if fund.nav %}
+    <h3>Latest NAV</h3>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>NAV</th>
+        </tr>
+        {% for key, value in fund.nav.items() %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No NAV data available.</p>
+{% endif %}
 {% endblock %}
 
     

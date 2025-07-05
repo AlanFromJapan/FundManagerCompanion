@@ -4,6 +4,7 @@ class Fund:
         self.name = name
         self.currency = currency
         self.codes = {}
+        self.nav = {}
 
     @classmethod
     def from_db_row(cls, row):

@@ -17,7 +17,7 @@
                         {% for code, value in fund.codes.items() %}
                             <li>{{ code }}: {{ value }} 
                                 {% if code == 'yahoo_finance' %}
-                                <a href="https://fund.monex.co.jp/detail/{{value}}">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}">Y</a> 
+                                <a href="https://fund.monex.co.jp/detail/{{value}}" target="_blank">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}" target="_blank">Y</a> 
                                 {% endif %}
                             </li>
                         {% endfor %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import sqlite3
 from fund import Fund
 
@@ -21,32 +21,53 @@ def show_funds_page():
     return render_template('funds.html', funds=funds)
 
 
-@app.route('/funds/<int:fund_id>')
+@app.route('/funds/<int:fund_id>', methods=['GET','POST'])
 def show_fund_page(fund_id):
     funds = get_all_funds()
     fund = next((f for f in funds if f.fund_id == fund_id), None)
     if fund is None:
         return "Fund not found", 404
-    
-    
+
+    # Fetch latest known NAV for the fund from DB
+    get_fund_nav(fund)
+
+    #POST BACK POST BACK POST BACK
+    if request.method == 'POST':
+        if 'update_nav' in request.form:
+            import_latest_nav(fund)
+            return render_template('fund_detail.html', fund=fund)
+
     return render_template('fund_detail.html', fund=fund)
 
 
-def get_latest_nav(fund):
+def get_fund_nav(fund:Fund):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ?", (fund.fund_id,))
+    row = cur.fetchone()
+
+    conn.close()
+
+    if row is not None:
+        fund.nav[row[0]] = float(row[1])
+
+
+def import_latest_nav(fund):
     if isinstance(fund, Fund):
         date, price = nav_provider.get_latest_nav(fund)
 
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
 
-        cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, Date, Price) VALUES (?, ?, ?)",
+        cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
                     (fund.fund_id, date, price))  # Initialize with None values
         conn.commit()
         conn.close()
     else:
         if isinstance(fund, list):
             for f in fund:
-                get_latest_nav(f)
+                import_latest_nav(f)
         else:
             raise Exception("Invalid fund type. Expected Fund or list of Funds.")
 
