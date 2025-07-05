@@ -199,3 +199,10 @@ data/*.csv
 data/*.ods
 data/*.db
 !data/transcoding.csv
+
+#venv
+bin/
+lib/
+lib64
+include/
+pyvenv.cfg
