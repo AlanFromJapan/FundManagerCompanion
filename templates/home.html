@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Welcome to the Fund Manager Companion</h2>
+<p>This application helps you manage your investment funds.</p>
+<p>Use the navigation to view funds, add new funds, or manage your portfolio.</p>
+
+<p>To get started, you can view the <a href="{{ url_for('show_funds_page') }}">list of funds</a>.</p>
+{% endblock %}
+
+    

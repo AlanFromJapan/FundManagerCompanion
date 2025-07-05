@@ -6,7 +6,12 @@ DB_PATH = 'data/data.db'
 app = Flask(__name__)
 
 @app.route('/')
-def show_funds():
+@app.route('/home')
+def home_page():
+    return render_template('home.html')
+
+@app.route('/funds')
+def show_funds_page():
     funds = get_all_funds()
     return render_template('funds.html', funds=funds)
 

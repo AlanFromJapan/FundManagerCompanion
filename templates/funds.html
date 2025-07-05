@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Funds List</title>
-    <style>
-        table { border-collapse: collapse; width: 60%; margin: 2em auto; }
-        th, td { border: 1px solid #888; padding: 8px 12px; text-align: left; }
-        th { background: #f0f0f0; }
-        h1 { text-align: center; }
-    </style>
-</head>
-<body>
-    <h1>Funds List</h1>
-    <table>
+{% extends 'base.html' %}
+
+{% block title %}Funds List{% endblock %}
+
+{% block content %}
+<h2>Funds List</h2>
+<table>
         <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Codes</th></tr>
-        {% for fund in funds %}
-        <tr>
-            <td>{{ fund.fund_id }}</td>
-            <td>{{ fund.name }}</td>
-            <td>{{ fund.currency }}</td>
+    {% for fund in funds %}
+    <tr>
+        <td>{{ fund.fund_id }}</td>
+        <td>{{ fund.name }}</td>
+        <td>{{ fund.currency }}</td>
             <td>
                 {% if fund.codes %}
                     <ul>
@@ -34,8 +26,9 @@
                     No codes available
                 {% endif %}
             </td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+
+    
