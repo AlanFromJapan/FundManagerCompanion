@@ -4,6 +4,12 @@
 
 {% block content %}
 <h2>Funds List</h2>
+
+<form method="post" action="/funds">
+    <input type="hidden" name="update_nav" value="true">
+    <input type="submit" value="Update ALL funds latest NAV">
+</form>
+
 <table>
         <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Codes</th></tr>
     {% for fund in funds %}

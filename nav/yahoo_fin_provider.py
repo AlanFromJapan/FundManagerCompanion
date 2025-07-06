@@ -9,29 +9,31 @@ url = "https://finance.yahoo.co.jp/quote/"
 
 class YahooFinProvider(NAVProvider):
     def get_latest_nav(self, fund):
-
-        # Send a GET request to the page
-
         request_url = url + fund.codes['yahoo_finance']
-        page_content = NAVProvider.get_page(request_url)
+        try:
+            # Send a GET request to the page
+            page_content = NAVProvider.get_page(request_url)
 
-        # Parse the HTML content
-        soup = BeautifulSoup(page_content, 'html.parser')
+            # Parse the HTML content
+            soup = BeautifulSoup(page_content, 'html.parser')
 
-        # Find the <p> tag with class="price__1VJb"
-        price_tag = soup.find('p', class_="price__1VJb")
-        last_price = float(price_tag.get_text(strip=True).replace(',', ''))
-        
-        last_date = soup.find('p', class_="updateDate__r1Qf")
-        #format is "MM/DD"
-        if last_date:
-            current_year = datetime.now().year
-            last_date = last_date.get_text(strip=True)
-            last_date = f"{current_year }/{last_date}" #YYYY/MM/DD
-            last_date = datetime.strptime(last_date, "%Y/%m/%d")
+            # Find the <p> tag with class="price__1VJb"
+            price_tag = soup.find('p', class_="price__1VJb")
+            last_price = float(price_tag.get_text(strip=True).replace(',', ''))
+            
+            last_date = soup.find('p', class_="updateDate__r1Qf")
+            #format is "MM/DD"
+            if last_date:
+                current_year = datetime.now().year
+                last_date = last_date.get_text(strip=True)
+                last_date = f"{current_year }/{last_date}" #YYYY/MM/DD
+                last_date = datetime.strptime(last_date, "%Y/%m/%d")
 
-        #returns (date, price)
-        return (last_date, last_price)
+            #returns (date, price)
+            return (last_date, last_price)
+        except Exception as e:
+            print(f"Error fetching NAV for {fund.codes['yahoo_finance']} at URL [{request_url}]: {e}")
+            return (None, None)
 
 
 if __name__ == "__main__":

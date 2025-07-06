@@ -15,9 +15,16 @@ def home_page():
     return render_template('home.html')
 
 
-@app.route('/funds')
+@app.route('/funds', methods=['GET','POST'])
 def show_funds_page():
     funds = get_all_funds()
+
+    #POST BACK POST BACK POST BACK
+    if request.method == 'POST':
+        if 'update_nav' in request.form:
+            for fund in funds:
+                import_latest_nav(fund)
+
     return render_template('funds.html', funds=funds)
 
 
@@ -28,14 +35,13 @@ def show_fund_page(fund_id):
     if fund is None:
         return "Fund not found", 404
 
-    # Fetch latest known NAV for the fund from DB
-    get_fund_nav(fund)
-
     #POST BACK POST BACK POST BACK
     if request.method == 'POST':
         if 'update_nav' in request.form:
             import_latest_nav(fund)
-            return render_template('fund_detail.html', fund=fund)
+
+    # Fetch latest known NAV for the fund from DB
+    get_fund_nav(fund)
 
     return render_template('fund_detail.html', fund=fund)
 
@@ -57,6 +63,10 @@ def import_latest_nav(fund):
     if isinstance(fund, Fund):
         date, price = nav_provider.get_latest_nav(fund)
 
+        if date is None or price is None:
+            print(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})")
+            return
+        
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
 
