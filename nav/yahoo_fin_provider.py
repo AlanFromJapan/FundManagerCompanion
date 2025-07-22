@@ -18,10 +18,10 @@ class YahooFinProvider(NAVProvider):
             soup = BeautifulSoup(page_content, 'html.parser')
 
             # Find the <p> tag with class="price__1VJb"
-            price_tag = soup.find('p', class_="price__1VJb")
+            price_tag = soup.find('span', class_="StyledNumber__value__3rXW")
             last_price = float(price_tag.get_text(strip=True).replace(',', ''))
             
-            last_date = soup.find('p', class_="updateDate__r1Qf")
+            last_date = soup.find('time')
             #format is "MM/DD"
             if last_date:
                 current_year = datetime.now().year

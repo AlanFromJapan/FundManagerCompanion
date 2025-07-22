@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 import sqlite3
 from fund import Fund
 
+from pychartjs import BaseChart, ChartType, Color      
+
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
@@ -9,10 +11,27 @@ nav_provider = YahooFinProvider()
 DB_PATH = 'data/data.db'
 app = Flask(__name__)
 
+
+class MyBarGraph(BaseChart):
+
+    type = ChartType.Bar
+
+    class data:
+        label = "Numbers"
+        type = ChartType.Line
+        data = [12, 19, 3, 17, 10]
+        backgroundColor = Color.Green
+
+
 @app.route('/')
 @app.route('/home')
 def home_page():
-    return render_template('home.html')
+    NewChart = MyBarGraph()
+    NewChart.data.label = "My Favourite Numbers"      # can change data after creation
+
+    ChartJSON = NewChart.get()
+
+    return render_template('home.html', chartJSON=ChartJSON)
 
 
 @app.route('/funds', methods=['GET','POST'])
@@ -21,7 +40,9 @@ def show_funds_page():
 
     #POST BACK POST BACK POST BACK
     if request.method == 'POST':
+        print("POST request received")
         if 'update_nav' in request.form:
+            print("Updating NAV for all funds")
             for fund in funds:
                 import_latest_nav(fund)
 
@@ -50,18 +71,21 @@ def get_fund_nav(fund:Fund):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ?", (fund.fund_id,))
-    row = cur.fetchone()
+    cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ? ORDER BY AtDate DESC", (fund.fund_id,))
+    rows = cur.fetchall()
 
     conn.close()
 
-    if row is not None:
-        fund.nav[row[0]] = float(row[1])
+    if rows is not None:
+        for row in rows:
+            fund.nav[row[0]] = float(row[1])
 
 
 def import_latest_nav(fund):
     if isinstance(fund, Fund):
+        print(f"Importing NAV for fund {fund.fund_id} ({fund.name})")
         date, price = nav_provider.get_latest_nav(fund)
+        print(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}")
 
         if date is None or price is None:
             print(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})")
@@ -77,15 +101,16 @@ def import_latest_nav(fund):
     else:
         if isinstance(fund, list):
             for f in fund:
+                print(f"Importing NAV for fund {f.fund_id} ({f.name})")
                 import_latest_nav(f)
         else:
             raise Exception("Invalid fund type. Expected Fund or list of Funds.")
 
 
 __funds = None
-def get_all_funds():
+def get_all_funds(forced_reload=False):
     global __funds
-    if __funds is not None:
+    if __funds is not None and not forced_reload:
         return __funds
     
     conn = sqlite3.connect(DB_PATH)

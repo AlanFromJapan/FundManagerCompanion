@@ -8,6 +8,16 @@
 <p>Use the navigation to view funds, add new funds, or manage your portfolio.</p>
 
 <p>To get started, you can view the <a href="{{ url_for('show_funds_page') }}">list of funds</a>.</p>
+
+
+<canvas id="myChart"></canvas>
+
+<script>
+    var data = {{ chartJSON | safe }};
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, data);
+</script>
+
 {% endblock %}
 
     
