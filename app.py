@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request
 import sqlite3
 from fund import Fund
-
+from config import conf
 from pychartjs import BaseChart, ChartType, Color      
 
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
 
-DB_PATH = 'data/data.db'
+
 app = Flask(__name__)
 
 
@@ -62,23 +62,11 @@ def show_fund_page(fund_id):
             import_latest_nav(fund)
 
     # Fetch latest known NAV for the fund from DB
-    get_fund_nav(fund)
+    fund.get_fund_nav()
 
     return render_template('fund_detail.html', fund=fund)
 
 
-def get_fund_nav(fund:Fund):
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-
-    cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ? ORDER BY AtDate DESC", (fund.fund_id,))
-    rows = cur.fetchall()
-
-    conn.close()
-
-    if rows is not None:
-        for row in rows:
-            fund.nav[row[0]] = float(row[1])
 
 
 def import_latest_nav(fund):
@@ -91,7 +79,7 @@ def import_latest_nav(fund):
             print(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})")
             return
         
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 
         cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
@@ -112,8 +100,8 @@ def get_all_funds(forced_reload=False):
     global __funds
     if __funds is not None and not forced_reload:
         return __funds
-    
-    conn = sqlite3.connect(DB_PATH)
+
+    conn = sqlite3.connect(conf['DB_PATH'])
     cur = conn.cursor()
     
     cur.execute('SELECT FundID, Name, Currency FROM FUND')
