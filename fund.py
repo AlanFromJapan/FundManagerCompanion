@@ -16,8 +16,17 @@ class Fund:
         return cls(row[0], row[1], row[2])
 
 
+
+
     def __repr__(self):
         return f"<Fund id={self.fund_id} name={self.name} currency={self.currency}>"
+
+    @property
+    def nav_sorted(self):
+        """
+        Returns a list of (date, nav) tuples sorted by date descending.
+        """
+        return sorted(((x[0], x[1]) for x in self.nav.items()), key=lambda x: x[0], reverse=True)
 
 
     def get_fund_nav(self):

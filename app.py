@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 import sqlite3
 from fund import Fund
 from config import conf
@@ -10,6 +10,7 @@ nav_provider = YahooFinProvider()
 
 
 app = Flask(__name__)
+app.secret_key = conf['SECRET_KEY']
 
 
 class MyBarGraph(BaseChart):
@@ -76,9 +77,11 @@ def import_latest_nav(fund):
         print(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}")
 
         if date is None or price is None:
-            print(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})")
+            flash(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})", "error")
             return
         
+        flash(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}", "info")
+
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 

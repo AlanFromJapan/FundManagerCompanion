@@ -3,7 +3,7 @@
 {% block title %}Funds Detail{% endblock %}
 
 {% block content %}
-<h2>Funds List</h2>
+<h2>Fund Details</h2>
 <table>
     <tr>
         <td>Fund UID</td><td>{{ fund.fund_id }}</td>
@@ -48,10 +48,10 @@
             <th>Date</th>
             <th>NAV</th>
         </tr>
-        {% for key, value in fund.nav.items() %}
+        {% for n in fund.nav_sorted %}
         <tr>
-            <td>{{ key }}</td>
-            <td>{{ value }}</td>
+            <td>{{ n[0][:10] }}</td>
+            <td>{{ "{:,.0f}".format(n[1]) }}</td>
         </tr>
         {% endfor %}
     </table>
