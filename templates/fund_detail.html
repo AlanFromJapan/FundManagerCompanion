@@ -55,6 +55,15 @@
         </tr>
         {% endfor %}
     </table>
+    <h3>NAV Chart</h3>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        var data = {{ chartJSON | safe }};
+        var ctx = document.getElementById("myChart").getContext('2d');
+        var myChart = new Chart(ctx, data);
+    </script>
+
 {% else %}
     <p>No NAV data available.</p>
 {% endif %}
