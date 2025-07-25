@@ -4,7 +4,7 @@ from config import conf
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
-from shared import get_all_funds, import_latest_nav
+from shared import get_all_funds, import_latest_nav, get_latest_positions
 from bp_fund_detail.fund_detail import bp_fund_details
 
 app = Flask(__name__)
@@ -22,6 +22,7 @@ def home_page():
 
 @app.route('/funds', methods=['GET','POST'])
 def show_funds_page():
+    pos = get_latest_positions()
     funds = get_all_funds()
 
     #POST BACK POST BACK POST BACK
@@ -32,7 +33,7 @@ def show_funds_page():
             for fund in funds:
                 import_latest_nav(fund)
 
-    return render_template('funds.html', funds=funds)
+    return render_template('funds.html', pos=pos, funds=funds)
 
 
 

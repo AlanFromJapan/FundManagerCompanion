@@ -44,7 +44,7 @@ def get_all_funds(forced_reload=False):
     conn = sqlite3.connect(conf['DB_PATH'])
     cur = conn.cursor()
     
-    cur.execute('SELECT FundID, Name, Currency FROM FUND')
+    cur.execute('SELECT F.FundID, F.Name, F.Currency, P.Unit as LatestUnit, P.AtDate as LatestDate from FUND as F JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)')
     rows = cur.fetchall()
 
     #ugly but not so many funs that it counts
@@ -63,3 +63,48 @@ def get_all_funds(forced_reload=False):
 
     return __funds
 
+
+def get_latest_positions():
+    pos = []
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+    
+    cur.execute("""
+SELECT 
+    F.FundID, F.Name, F.Currency, P.Unit as LatestUnit, P.AtDate as LatestDateHolding, NAVS.NAV as LatestNAV, NAVS.AtDate as LatestDateNAV
+from 
+    FUND as F 
+    JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
+
+    JOIN (
+    SELECT N.FundId, N.AtDate, Max(N.NAV) as NAV
+    from FUND_NAV as N
+    WHERE
+    1=1
+    GROUP BY N.FundId having N.AtDate = Max(N.AtDate)
+    ) as NAVS ON F.FundId = NAVS.FundId
+""")
+
+    rows = cur.fetchall()
+    for row in rows:
+        fund_id = row[0]
+        name = row[1]
+        currency = row[2]
+        latest_unit = row[3]
+        latest_date_position = row[4]
+        latest_nav = row[5]
+        latest_date_nav = row[6]
+
+        pos.append({
+            'fund_id': fund_id,
+            'name': name,
+            'currency': currency,
+            'latest_unit': latest_unit,
+            'latest_date_position': latest_date_position,
+            'latest_nav': latest_nav,
+            'latest_date_nav': latest_date_nav
+        })
+        
+    conn.close()
+
+    return pos
