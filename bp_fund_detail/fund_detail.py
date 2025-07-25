@@ -1,4 +1,5 @@
 
+from html import parser
 from pychartjs import BaseChart, ChartType, Color     
 from flask import  render_template, request, Blueprint
 
@@ -22,6 +23,14 @@ class NavChart(BaseChart):
                 'ticks': {
                     'beginAtZero': True
                 }
+            }],
+            'xAxes': [{
+                #'type': 'time',
+                'time': {
+                    'parser': 'YYYY-MM-DD HH:mm:ss',
+                    'unit': 'day',
+                    'tooltipFormat': 'll'
+                },
             }]
         }
 
@@ -41,10 +50,21 @@ def show_fund_page(fund_id):
     # Fetch latest known NAV for the fund from DB
     fund.get_fund_nav()
 
-    NewChart = NavChart()
-    NewChart.data.label = fund.name
-    NewChart.data.data = [x[1] for x in fund.nav_sorted] if fund else []
+    # Prepare data for the chart
+    if fund.nav:
+        NewChart = NavChart()
+        NewChart.data.label = fund.name
 
-    ChartJSON = NewChart.get()
+        # NewChart.data.data = [x[1] for x in fund.nav_sorted] if fund else []
+        NewChart.data.data = []
+        #reverse the nav_sorted to have oldest first (L to R)
+        snav = fund.nav_sorted
+        snav.reverse()  # Reverse to have oldest first
+        for date, nav in snav:
+            NewChart.data.data.append({'x': date, 'y': nav})
+
+        ChartJSON = NewChart.get()
+    else:
+        ChartJSON = None
 
     return render_template('fund_detail.html', fund=fund, chartJSON=ChartJSON)

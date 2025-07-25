@@ -47,11 +47,26 @@
         <tr>
             <th>Date</th>
             <th>NAV</th>
+            <th>NAV Diff (Value)</th>
+            <th>NAV Diff (%)</th>
         </tr>
-        {% for n in fund.nav_sorted %}
+        {% for ni in range(0, fund.nav_sorted|length) %}
         <tr>
-            <td>{{ n[0][:10] }}</td>
-            <td>{{ "{:,.0f}".format(n[1]) }}</td>
+            <td>{{ fund.nav_sorted[ni][0][:10] }}</td>
+            <td>{{ "{:,.0f}".format(fund.nav_sorted[ni][1]) }}</td>
+            <td>
+                {% if fund.nav_diff  and ni < fund.nav_diff|length %}
+                    {{ "{:+,.0f}".format(fund.nav_diff[ni].diffamt) }}
+                {% else %}
+                    N/A
+                {% endif %}
+            <td>
+                {% if fund.nav_diff  and ni < fund.nav_diff|length %}
+                    {{ "{:+,.2f}".format(fund.nav_diff[ni].diffpct) }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
