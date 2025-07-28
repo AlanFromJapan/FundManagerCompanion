@@ -83,6 +83,10 @@ from
     1=1
     GROUP BY N.FundId having N.AtDate = Max(N.AtDate)
     ) as NAVS ON F.FundId = NAVS.FundId
+WHERE
+    1=1
+    AND P.Unit > 0
+                
 """)
 
     rows = cur.fetchall()

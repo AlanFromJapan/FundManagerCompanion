@@ -71,6 +71,27 @@ PRIMARY KEY (FundID, AtDate)
 ''')
 
 
+#---------------------------------------------------------------------------
+# Offset the positions (could retrieve only transactions past jan 2022)
+# Read CSV and get headers
+with open("initiale_position_adjust.csv", newline='', encoding='utf-8') as csvfile:
+    reader = csv.reader(csvfile, delimiter=';', quotechar='"')
+    _ = next(reader)
+    rows = [row for row in reader if any(field.strip() for field in row)]
+
+#offset the positions
+offsets = {}
+for row in rows:
+    fund_id = str(row[0]).strip()
+    adjust = int(row[4])
+    if not "" == fund_id and fund_id.isdigit() and adjust != 0:
+        fund_id = int(fund_id)
+        offsets[fund_id] = adjust
+
+
+#---------------------------------------------------------------------------
+
+
 # Read CSV and get headers
 with open(csv_path, newline='', encoding='utf-8') as csvfile:
     reader = csv.reader(csvfile, delimiter=';', quotechar='"')
@@ -188,6 +209,15 @@ Select FundId, ?, 0, 0 FROM FUND''',
     (previous_exec_date.strftime('%Y-%m-%d'),)
 )
 
+#offsets the positions
+for fund_id, adjust in offsets.items():
+    cur.execute(
+        'UPDATE POSITION SET Unit = ? WHERE FundID = ?',
+        (adjust, fund_id,)
+    )
+    print(f"Offsetting fund {fund_id} by {adjust} units")
+
+
 cnt = 0
 #get all the transactions
 cur.execute("SELECT * FROM XACT ORDER BY ExecutionDate ASC")
@@ -202,7 +232,7 @@ while d <= datetime.datetime.today() - datetime.timedelta(days=1):
         (d.strftime('%Y-%m-%d'), (d - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))
     )
 
-    print(f"▶Processing positions for date: {d.strftime('%Y-%m-%d')} len(xacts)={len(xacts)}")
+    #print(f"▶Processing positions for date: {d.strftime('%Y-%m-%d')} len(xacts)={len(xacts)}")
 
     # Process transactions for the current date (d = execution date)
     while len(xacts) > 0 and xacts[0][2] == d.strftime('%Y-%m-%d'):
@@ -233,6 +263,7 @@ while d <= datetime.datetime.today() - datetime.timedelta(days=1):
         print(f"Processing transaction: {xact_type} {unit} units at {amount} each for fund {fund_id} on {exec_date} ")
         # Update the position
         cur.execute(
+            #TODO FIX don't sum amount, recalculate it with NAV of the date once I have it (future update)
             'UPDATE POSITION SET Unit = Unit + ?, Amount = Amount + ? WHERE FundID = ? AND AtDate = ?',
             (unit, amount, fund_id, d.strftime('%Y-%m-%d'))
         )
@@ -245,6 +276,8 @@ while d <= datetime.datetime.today() - datetime.timedelta(days=1):
     cnt += 1
 
 print(f"Inserted {cnt} rows into {db_path} (POSITION)")
+
+
 
 conn.commit()
 conn.close()
