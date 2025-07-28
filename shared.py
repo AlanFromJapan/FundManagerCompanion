@@ -77,7 +77,7 @@ from
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
 
     JOIN (
-    SELECT N.FundId, N.AtDate, Max(N.NAV) as NAV
+    SELECT N.FundId, N.AtDate, N.NAV as NAV
     from FUND_NAV as N
     WHERE
     1=1
