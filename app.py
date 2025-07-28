@@ -25,6 +25,13 @@ def show_funds_page():
     pos = get_latest_positions()
     funds = get_all_funds()
 
+    stats = {}
+    stats['total_funds_count'] = len(funds)
+    stats['total_positions'] = sum(p["latest_unit"] * p["latest_nav"] /10000.0 for p in pos)
+
+    #sort positions ascending by maximum calculated position value
+    pos.sort(key=lambda x: x["latest_unit"] * x["latest_nav"], reverse=True)
+
     #POST BACK POST BACK POST BACK
     if request.method == 'POST':
         print("POST request received")
@@ -33,7 +40,7 @@ def show_funds_page():
             for fund in funds:
                 import_latest_nav(fund)
 
-    return render_template('funds.html', pos=pos, funds=funds)
+    return render_template('funds.html', pos=pos, funds=funds, stats=stats)
 
 
 
