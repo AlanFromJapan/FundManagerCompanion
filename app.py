@@ -7,7 +7,7 @@ nav_provider = YahooFinProvider()
 from shared import get_all_funds, import_latest_nav, get_latest_positions
 from bp_fund_detail.fund_detail import bp_fund_details
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 app.secret_key = conf['SECRET_KEY']
 
 #Register the blueprints

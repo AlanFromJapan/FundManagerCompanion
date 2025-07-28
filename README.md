@@ -1,7 +1,10 @@
 # FundManagerCompanion
 A web app to help you keep track of your funds investments and performance
 
-# Quotations
+## Concept
+I want to be able to keep track of when I invested on funds, and see the compound performance of the funds. Today my fund management site gives me a number and that's it.
+
+# Quotations API
 Mutual Funds have a price daily (NAV Net Asset Value) published at market closure at end of day (except ETF I know). Getting consistently prices from all of them will be a chore since I don't plan to pay for an API provider. 
 
 ## MUFG Funds

@@ -1,0 +1,17 @@
+/* **************************************** */
+/* FundManagerCompanion CSS Stylesheet */
+/* **************************************** */
+
+/* General styles */
+body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+header { background: #222; color: #fff; padding: 1em 2em; }
+header a { color: #fff;  }
+main { margin: 2em auto; max-width: 900px; background: #fff; padding: 2em; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
+h1, h2 { margin-top: 0; }
+table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+th, td { border: 1px solid #888; padding: 8px 12px; text-align: left; }
+th { background: #f0f0f0; }
+
+/* Table styles */
+td.rightalign { text-align: right; }
+td.centeralign { text-align: center; }

@@ -3,7 +3,7 @@
 {% block title %}Funds List{% endblock %}
 
 {% block content %}
-<h2>Funds List</h2>
+<h2>Funds List ({{ pos | length }} funds)  </h2>
 
 <form method="post" action="/funds">
     <input type="hidden" name="update_nav" value="true">
@@ -11,15 +11,16 @@
 </form>
 
 <table>
-        <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Current position</th><th>Latest NAV</th><th>Latest NAV Date</th></tr>
+        <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Current shares</th><th>Current amount</th><th>Latest NAV</th><th>Latest NAV Date</th></tr>
     {% for p in pos %}
     <tr>
         <td>{{ p["fund_id"] }}</td>
         <td><a href="/funds/{{ p['fund_id'] }}">{{ p["name"] }}</a></td>
         <td>{{ p["currency"] }}</td>
-        <td>{{ "{:,.0f}".format(p["latest_unit"]) }}</td>
-        <td>{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
-        <td>{{ p["latest_date_nav"][:10] }}</td>
+        <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"]) }}</td>
+        <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
+        <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
+        <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
     </tr>
     {% endfor %}
 </table>
