@@ -40,6 +40,10 @@
     <input type="hidden" name="update_nav" value="true">
     <input type="submit" value="Update NAV">
 </form>
+<form method="post" action="/funds/{{ fund.fund_id }}">
+    <input type="hidden" name="update_history_nav" value="true">
+    <input type="submit" value="Update HISTORICAL NAV">
+</form>
 
 {% if fund.nav %}
     <h3>Latest NAV</h3>

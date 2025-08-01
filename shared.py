@@ -32,7 +32,40 @@ def import_latest_nav(fund):
                 print(f"Importing NAV for fund {f.fund_id} ({f.name})")
                 import_latest_nav(f)
         else:
-            raise Exception("Invalid fund type. Expected Fund or list of Funds.")
+            raise ValueError("Invalid fund type. Expected Fund or list of Funds.")
+
+
+
+def import_history_nav(fund):
+    if isinstance(fund, Fund):
+        print(f"Importing History NAV for fund {fund.fund_id} ({fund.name})")
+
+        # Fetch historical NAVs
+        history_nav = nav_provider.get_history_nav(fund)
+        if history_nav is None or not history_nav or len(history_nav) == 0:
+            flash(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})", "error")
+            return
+        
+        flash(f"Fetched {len(history_nav)} historical NAVs for fund {fund.fund_id} ({fund.name})", "info")
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        
+        for date, price in history_nav.items():
+            print(f"Date: {date.strftime('%Y-%m-%d')}, NAV: {price}")
+
+            cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
+                        (fund.fund_id, date, price))  # Initialize with None values
+            
+        conn.commit()
+        conn.close()
+    else:
+        if isinstance(fund, list):
+            for f in fund:
+                print(f"Importing History NAV for fund {f.fund_id} ({f.name})")
+                import_history_nav(f)
+        else:
+            raise ValueError("Invalid fund type. Expected Fund or list of Funds.")
+
 
 
 __funds = None

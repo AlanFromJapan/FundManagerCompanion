@@ -20,6 +20,13 @@ class NAVProvider(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_history_nav(self, fund) -> dict:
+        """
+        Return a dictionary with dates as keys and NAVs as values for the given fund.
+        """
+        pass
+
     @staticmethod
     def get_page(url):
         response = requests.get(url, timeout=3)

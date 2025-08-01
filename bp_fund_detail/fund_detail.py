@@ -4,7 +4,7 @@ from pychartjs import BaseChart, ChartType, Color
 from flask import  render_template, request, Blueprint
 
 
-from shared import get_all_funds, import_latest_nav
+from shared import get_all_funds, import_latest_nav, import_history_nav
 
 bp_fund_details = Blueprint('bp_fund_details', __name__)
 
@@ -46,6 +46,8 @@ def show_fund_page(fund_id):
     if request.method == 'POST':
         if 'update_nav' in request.form:
             import_latest_nav(fund)
+        elif 'update_history_nav' in request.form:
+            import_history_nav(fund)
 
     # Fetch latest known NAV for the fund from DB
     fund.get_fund_nav()
