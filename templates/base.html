@@ -8,6 +8,40 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+
+{% macro xact_table(xact, options) -%}
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                    {% if options.show_fund %}
+                    <th>Fund</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in xact %}
+                <tr>
+                    <td>{{ item.date }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.amount }}</td>
+                    <td>{{ item.price }}</td>
+                    {% if options.show_fund %}
+                    <td>{{ options.fundname }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{%- endmacro %}
+    
     <header>
         <h1>Fund Manager Companion</h1>
         <nav>

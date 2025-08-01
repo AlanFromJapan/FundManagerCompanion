@@ -145,3 +145,7 @@ WHERE
     conn.close()
 
     return pos
+
+
+def get_transactions(fund_id):
+    raise NotImplementedError("This function is not implemented yet. Please implement it in the future.")

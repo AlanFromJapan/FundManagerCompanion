@@ -121,6 +121,14 @@
 {% else %}
     No NAV data available.
 {% endif %}
+
+<h3>Transactions</h3>
+{% if fund.transactions %}
+    {{ xact_table(fund.transactions, {'show_fund': False, 'fundname': fund.name}) }}
+{% else %}
+    No transactions available.
+{% endif %}
+
 {% endblock %}
 
     

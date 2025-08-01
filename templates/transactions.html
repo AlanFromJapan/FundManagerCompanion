@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Transactions history{% endblock %}
+
+{% block content %}
+<h2>Transactions</h2>
+{% if transactions %}
+    {{ xact_table(transactions, {'show_fund': True}) }}
+{% else %}
+    No transactions available.
+{% endif %}
+
+{% endblock %}
+
+    
