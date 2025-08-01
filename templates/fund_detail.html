@@ -46,6 +46,39 @@
 </form>
 
 {% if fund.nav %}
+    <h3>NAV Chart</h3>
+    <canvas id="myChart" ></canvas>
+
+<script>
+
+    const myLabels = JSON.parse('{{ chartData[1] | tojson | safe }}');
+    const myValues = JSON.parse('{{ chartData[0] | tojson | safe }}');
+
+    const data = {
+        labels: myLabels,
+        datasets: [{
+            borderColor: 'rgb(75, 192, 192)',
+            label: '{{ fund.name }}',
+            tension: 0.0,
+            data: myValues,
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: data,
+        options: {
+        }
+    };
+
+    const myChart = new Chart(
+        document.getElementById('myChart'),
+        config
+    );
+</script>
+
+    <!--   --------------------------------------------------------------------------- -->
+
     <h3>Latest NAV</h3>
     <table>
         <tr>
@@ -74,17 +107,10 @@
         </tr>
         {% endfor %}
     </table>
-    <h3>NAV Chart</h3>
-    <canvas id="myChart"></canvas>
 
-    <script>
-        var data = {{ chartJSON | safe }};
-        var ctx = document.getElementById("myChart").getContext('2d');
-        var myChart = new Chart(ctx, data);
-    </script>
 
 {% else %}
-    <p>No NAV data available.</p>
+    No NAV data available.
 {% endif %}
 {% endblock %}
 

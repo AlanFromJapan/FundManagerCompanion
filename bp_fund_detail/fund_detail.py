@@ -1,38 +1,8 @@
-
-from html import parser
-from pychartjs import BaseChart, ChartType, Color     
 from flask import  render_template, request, Blueprint
-
-
 from shared import get_all_funds, import_latest_nav, import_history_nav
+from datetime import datetime
 
 bp_fund_details = Blueprint('bp_fund_details', __name__)
-
-class NavChart(BaseChart):
-
-    type = ChartType.Bar
-
-    class data:
-        label = "NAV"
-        type = ChartType.Line
-        borderColor = Color.Green
-    
-    class options:
-        scales = {
-            'yAxes': [{
-                'ticks': {
-                    'beginAtZero': True
-                }
-            }],
-            'xAxes': [{
-                #'type': 'time',
-                'time': {
-                    'parser': 'YYYY-MM-DD HH:mm:ss',
-                    'unit': 'day',
-                    'tooltipFormat': 'll'
-                },
-            }]
-        }
 
 
 @bp_fund_details.route('/funds/<int:fund_id>', methods=['GET','POST'])
@@ -54,19 +24,12 @@ def show_fund_page(fund_id):
 
     # Prepare data for the chart
     if fund.nav:
-        NewChart = NavChart()
-        NewChart.data.label = fund.name
-
-        # NewChart.data.data = [x[1] for x in fund.nav_sorted] if fund else []
-        NewChart.data.data = []
         #reverse the nav_sorted to have oldest first (L to R)
         snav = fund.nav_sorted
         snav.reverse()  # Reverse to have oldest first
-        for date, nav in snav:
-            NewChart.data.data.append({'x': date, 'y': nav})
 
-        ChartJSON = NewChart.get()
-    else:
-        ChartJSON = None
+        values = [{'x': date, 'y': int(nav)} for date, nav in snav]
+        labels = [date[:10] for date, _ in snav]
 
-    return render_template('fund_detail.html', fund=fund, chartJSON=ChartJSON)
+
+    return render_template('fund_detail.html', fund=fund, chartData=(values, labels))
