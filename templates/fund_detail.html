@@ -6,15 +6,16 @@
 <h2>Fund Details</h2>
 <table>
     <tr>
-        <td>Fund UID</td><td>{{ fund.fund_id }}</td>
+        <td>Fund UID</td>
+        <td colspan="2">{{ fund.fund_id }}</td>
     </tr>
     <tr>
         <td>Name</td>
-        <td>{{ fund.name }}</td>
+        <td colspan="2">{{ fund.name }}</td>
     </tr>
     <tr>
         <td>Currency</td>
-        <td>{{ fund.currency }}</td>
+        <td colspan="2">{{ fund.currency }}</td>
     </tr>
     <tr>
         <td>Codes</td>
@@ -22,16 +23,19 @@
             {% if fund.codes %}
                 <ul>
                     {% for code, value in fund.codes.items() %}
-                        <li>{{ code }}: {{ value }} 
-                            {% if code == 'yahoo_finance' %}
-                            <a href="https://fund.monex.co.jp/detail/{{value}}" target="_blank">M</a>&nbsp;<a href="https://finance.yahoo.co.jp/quote/{{value}}" target="_blank">Y</a> 
-                            {% endif %}
-                        </li>
+                        <li>{{ code }}: <code>{{ value }}</code></li>
                     {% endfor %}
                 </ul>
             {% else %}
                 No codes available
             {% endif %}
+        </td>
+        <td>
+            <ul>
+                <li><a href="https://fund.monex.co.jp/detail/{{fund.codes['yahoo_finance']}}" target="_blank">MONEX site</a></li>
+                <li><a href="https://finance.yahoo.co.jp/quote/{{fund.codes['yahoo_finance']}}" target="_blank">Yahoo Finance</a></li>
+                <li><a href="https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd={{fund.codes['ISIN']}}" target="_blank">Toushin Lib （投資信託協会）</a></li>
+            </ul>
         </td>
     </tr>
 </table>
