@@ -1,10 +1,34 @@
+import csv
+from datetime import datetime
+import io
 from flask import Flask, render_template, request, flash, current_app
 import sqlite3
+
+import requests
 from fund import Fund
 from config import conf 
 
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
+
+
+def _save_nav(fund: Fund, date, price, cur: sqlite3.Cursor = None):
+    """ Save the NAV for a fund to the database.
+    If cur is None, it will use create a dedicated connection + commit.
+    """
+    local_cursor = False
+    if cur is None:
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        local_cursor = True
+
+    cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
+                (fund.fund_id, date, price))  # Initialize with None values
+
+    if local_cursor:
+        conn.commit()
+        conn.close()
+
 
 
 def import_latest_nav(fund):
@@ -19,13 +43,7 @@ def import_latest_nav(fund):
         
         flash(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}", "info")
 
-        conn = sqlite3.connect(conf['DB_PATH'])
-        cur = conn.cursor()
-
-        cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
-                    (fund.fund_id, date, price))  # Initialize with None values
-        conn.commit()
-        conn.close()
+        _save_nav(fund, date, price)
     else:
         if isinstance(fund, list):
             for f in fund:
@@ -53,9 +71,8 @@ def import_history_nav(fund):
         for date, price in history_nav.items():
             print(f"Date: {date.strftime('%Y-%m-%d')}, NAV: {price}")
 
-            cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
-                        (fund.fund_id, date, price))  # Initialize with None values
-            
+            _save_nav(fund, date, price, cur)
+
         conn.commit()
         conn.close()
     else:
@@ -65,6 +82,47 @@ def import_history_nav(fund):
                 import_history_nav(f)
         else:
             raise ValueError("Invalid fund type. Expected Fund or list of Funds.")
+
+
+
+
+def import_whole_nav(fund:Fund):
+    """
+    Import the whole NAV for the fund from the Investment Trust Association.
+    This function should handle the logic to fetch and update the NAV data.
+    """
+    URL_ITA = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd={isin}&associFundCd={yahooid}"
+    # Placeholder for actual implementation
+    # This should include fetching data from the IITA and updating the fund's NAV
+    print(f"Importing whole NAV for fund: {fund.fund_id}")
+    # Example: fund.update_nav_from_iita()
+    url = URL_ITA.format(isin=fund.codes["ISIN"], yahooid=fund.codes["yahoo_finance"])
+    print(f"Fetching NAV from URL: {url}")
+    # Here you would implement the logic to fetch the CSV from the URL and update the fund
+    response = requests.get(url)
+    response.raise_for_status()
+    response_raw = response.text
+    response_decoded = response_raw.encode('utf-8').decode('utf-8-sig')  # Handle BOM if present
+    csv_data = io.StringIO(response_decoded)
+    # Now csv_data can be used to read the CSV content in memory
+    reader = csv.reader(csv_data, delimiter=',')
+    cnt = 0
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+    for row in reader:
+        if cnt == 0:
+            # Skip header row
+            cnt += 1
+            continue
+        cnt += 1
+        nav_date = datetime.strptime(row[0].strip(), "%Y年%m月%d日")
+        nav = int(row[1].strip())
+        _save_nav(fund, nav_date, nav, cur)
+
+    conn.commit()
+    conn.close()
+    print(f"Total rows processed: {cnt}")
+    flash(f"Imported {cnt} NAV records for fund {fund.fund_id} ({fund.name})", "info")
 
 
 

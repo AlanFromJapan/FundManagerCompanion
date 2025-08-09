@@ -48,9 +48,14 @@
     <input type="hidden" name="update_history_nav" value="true">
     <input type="submit" value="Update HISTORICAL NAV">
 </form>
+<form method="post" action="/funds/{{ fund.fund_id }}">
+    <input type="hidden" name="update_whole_nav" value="true">
+    <input type="submit" value="Update WHOLE NAV from Investment Trust Association">
+</form>
+
 
 {% if fund.nav %}
-    <h3>NAV Chart</h3>
+    <h3>NAV Chart ({{chartData[2]}} latest)</h3>
     <canvas id="myChart" ></canvas>
 
 <script>

@@ -28,6 +28,7 @@ class Fund:
         """
         return sorted(((x[0], x[1]) for x in self.nav.items()), key=lambda x: x[0], reverse=True)
 
+
     @property
     def latest_nav(self):
         """
@@ -56,11 +57,11 @@ class Fund:
         return diffs
     
 
-    def get_fund_nav(self):
+    def get_fund_nav(self, limit=100):
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 
-        cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ? ORDER BY AtDate DESC", (self.fund_id,))
+        cur.execute("SELECT AtDate, NAV FROM FUND_NAV WHERE FundID = ? ORDER BY AtDate DESC LIMIT ?", (self.fund_id, limit))
         rows = cur.fetchall()
 
         conn.close()
