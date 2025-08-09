@@ -4,7 +4,7 @@ from config import conf
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
-from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav
+from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
 
@@ -42,6 +42,9 @@ def show_funds_page():
         elif 'update_history_nav' in request.form:
             print("Updating historical NAV for all funds")
             import_history_nav(funds)
+        elif 'update_whole_nav' in request.form:
+            print("Updating whole NAV for all funds from Investment Trust Association")
+            import_whole_nav(funds)
 
     return render_template('funds.html', pos=pos, funds=funds, stats=stats)
 

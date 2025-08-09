@@ -86,44 +86,54 @@ def import_history_nav(fund):
 
 
 
-def import_whole_nav(fund:Fund):
+def import_whole_nav(fund):
     """
     Import the whole NAV for the fund from the Investment Trust Association.
     This function should handle the logic to fetch and update the NAV data.
     """
-    URL_ITA = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd={isin}&associFundCd={yahooid}"
-    # Placeholder for actual implementation
-    # This should include fetching data from the IITA and updating the fund's NAV
-    print(f"Importing whole NAV for fund: {fund.fund_id}")
-    # Example: fund.update_nav_from_iita()
-    url = URL_ITA.format(isin=fund.codes["ISIN"], yahooid=fund.codes["yahoo_finance"])
-    print(f"Fetching NAV from URL: {url}")
-    # Here you would implement the logic to fetch the CSV from the URL and update the fund
-    response = requests.get(url)
-    response.raise_for_status()
-    response_raw = response.text
-    response_decoded = response_raw.encode('utf-8').decode('utf-8-sig')  # Handle BOM if present
-    csv_data = io.StringIO(response_decoded)
-    # Now csv_data can be used to read the CSV content in memory
-    reader = csv.reader(csv_data, delimiter=',')
-    cnt = 0
-    conn = sqlite3.connect(conf['DB_PATH'])
-    cur = conn.cursor()
-    for row in reader:
-        if cnt == 0:
-            # Skip header row
+    if isinstance(fund, list):
+        # If a list of funds is provided, iterate through each fund
+        for f in fund:
+            print(f"Importing Whole NAV for fund {f.fund_id} ({f.name})")
+            import_whole_nav(f)
+        return
+
+    try:
+        URL_ITA = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd={isin}&associFundCd={id}"
+        # Placeholder for actual implementation
+        # This should include fetching data from the IITA and updating the fund's NAV
+        print(f"Importing whole NAV for fund: {fund.fund_id}")
+        # Example: fund.update_nav_from_iita()
+        url = URL_ITA.format(isin=fund.codes["ISIN"], id=fund.codes["yahoo_finance"] if fund.codes.get("toushinkyokai") is None else fund.codes.get("toushinkyokai"))
+        print(f"Fetching NAV from URL: {url}")
+        # Here you would implement the logic to fetch the CSV from the URL and update the fund
+        response = requests.get(url)
+        response.raise_for_status()
+        response_raw = response.text
+        response_decoded = response_raw.encode('utf-8').decode('utf-8-sig')  # Handle BOM if present
+        csv_data = io.StringIO(response_decoded)
+        # Now csv_data can be used to read the CSV content in memory
+        reader = csv.reader(csv_data, delimiter=',')
+        cnt = 0
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        for row in reader:
+            if cnt == 0:
+                # Skip header row
+                cnt += 1
+                continue
             cnt += 1
-            continue
-        cnt += 1
-        nav_date = datetime.strptime(row[0].strip(), "%Y年%m月%d日")
-        nav = int(row[1].strip())
-        _save_nav(fund, nav_date, nav, cur)
+            nav_date = datetime.strptime(row[0].strip(), "%Y年%m月%d日")
+            nav = int(row[1].strip())
+            _save_nav(fund, nav_date, nav, cur)
 
-    conn.commit()
-    conn.close()
-    print(f"Total rows processed: {cnt}")
-    flash(f"Imported {cnt} NAV records for fund {fund.fund_id} ({fund.name})", "info")
-
+        conn.commit()
+        conn.close()
+        print(f"Total rows processed: {cnt}")
+        flash(f"Imported {cnt} NAV records for fund {fund.fund_id} ({fund.name})", "info")
+    except Exception as e:
+        print(f"Error importing whole NAV for fund {fund.fund_id} ({fund.name}): {e}")
+        flash(f"Failed to import whole NAV for fund {fund.fund_id} ({fund.name}): see logs for details {e}", "error")
 
 
 __funds = None

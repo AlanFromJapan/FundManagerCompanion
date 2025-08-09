@@ -13,6 +13,10 @@
     <input type="hidden" name="update_history_nav" value="true">
     <input type="submit" value="Update ALL funds HISTORICAL NAV">
 </form>
+<form method="post" action="/funds">
+    <input type="hidden" name="update_whole_nav" value="true">
+    <input type="submit" value="Update ALL funds WHOLE NAV from Investment Trust Association">
+</form>
 Total position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円
 <table>
         <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Current shares</th><th>Current amount</th><th>Latest NAV</th><th>Latest NAV Date</th></tr>
