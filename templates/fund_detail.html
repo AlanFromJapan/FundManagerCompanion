@@ -7,7 +7,8 @@
 <table>
     <tr>
         <td>Fund UID</td>
-        <td colspan="2">{{ fund.fund_id }}</td>
+        <td>{{ fund.fund_id }}</td>
+        <td>Last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }}</td>
     </tr>
     <tr>
         <td>Name</td>
@@ -55,7 +56,7 @@
 
 
 {% if fund.nav %}
-    <h3>NAV Chart ({{chartData[2]}} latest)</h3>
+    <h3>NAV Chart ({{chartData[3]}} latest)</h3>
     <canvas id="myChart" ></canvas>
 
 <script>
@@ -97,7 +98,7 @@
 
     <!--   --------------------------------------------------------------------------- -->
 
-    <h3>Latest NAV</h3>
+    <h3>Latest {{chartData[3]}} NAV</h3>
     <table>
         <tr>
             <th>Date</th>
@@ -105,7 +106,7 @@
             <th>NAV Diff (Value)</th>
             <th>NAV Diff (%)</th>
         </tr>
-        {% for ni in range(0, fund.nav_sorted|length) %}
+        {% for ni in range(0, fund.nav_sorted|length if fund.nav_sorted|length < chartData[3] else chartData[3]) %}
         <tr>
             <td>{{ fund.nav_sorted[ni][0][:10] }}</td>
             <td>{{ "{:,.0f}".format(fund.nav_sorted[ni][1]) }}</td>
