@@ -49,52 +49,44 @@
     </tr>
     <tr>
         <td>YTD Return</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
+        <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
     </tr>
     <tr>
         <td>1Y Return</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
+        <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
     </tr>
     <tr>
         <td>3Y Return</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
+        <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
     </tr>
     <tr>
         <td>Last Year Return</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
+        <td class="{{ 'stat_positive' if fund.stats['return_last_year'] > 0 else 'stat_negative' if fund.stats['return_last_year'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
     </tr>
-    <tr>
-        <td>YTD CAGR</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_ytd'])  }}</td>
-    </tr>
-    <tr>
-        <td>1Y CAGR</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_1y'])  }}</td>
-    </tr>
+    
     <tr>
         <td>3Y CAGR</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
+        <td class="{{ 'stat_positive' if fund.stats['cagr_3y'] > 0 else 'stat_negative' if fund.stats['cagr_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
     </tr>
-    <tr>
-        <td>Last Year CAGR</td>
-        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_last_year'])  }}</td>
-    </tr>
+    
 </table>
 
-
-<form method="post" action="/funds/{{ fund.fund_id }}">
-    <input type="hidden" name="update_nav" value="true">
-    <input type="submit" value="Update NAV">
-</form>
-<form method="post" action="/funds/{{ fund.fund_id }}">
-    <input type="hidden" name="update_history_nav" value="true">
-    <input type="submit" value="Update HISTORICAL NAV">
-</form>
-<form method="post" action="/funds/{{ fund.fund_id }}">
-    <input type="hidden" name="update_whole_nav" value="true">
-    <input type="submit" value="Update WHOLE NAV from Investment Trust Association">
-</form>
-
+<h3>Fund related actions</h3>
+<details>
+    <summary>Click to unfold</summary>
+    <form method="post" action="/funds/{{ fund.fund_id }}">
+        <input type="hidden" name="update_nav" value="true">
+        <input type="submit" value="Update NAV">
+    </form>
+    <form method="post" action="/funds/{{ fund.fund_id }}">
+        <input type="hidden" name="update_history_nav" value="true">
+        <input type="submit" value="Update HISTORICAL NAV">
+    </form>
+    <form method="post" action="/funds/{{ fund.fund_id }}">
+        <input type="hidden" name="update_whole_nav" value="true">
+        <input type="submit" value="Update WHOLE NAV from Investment Trust Association">
+    </form>
+</details>
 
 {% if fund.nav %}
 
@@ -143,13 +135,14 @@
     <!--   --------------------------------------------------------------------------- -->
 
     <h3>Latest {{chartData[3]}} NAV</h3>
-    <table>
+    <table class="scrollable" style="max-height: 300px;">
         <tr>
             <th>Date</th>
             <th>NAV</th>
             <th>NAV Diff (Value)</th>
             <th>NAV Diff (%)</th>
         </tr>
+        <tbody>
         {% for ni in range(0, fund.nav_sorted|length if fund.nav_sorted|length < chartData[3] else chartData[3]) %}
         <tr>
             <td>{{ fund.nav_sorted[ni][0][:10] }}</td>
@@ -160,7 +153,7 @@
                 {% else %}
                     N/A
                 {% endif %}
-            <td>
+            <td class="{{ 'stat_positive' if fund.nav_diff[ni].diffpct > 3 else 'stat_negative' if fund.nav_diff[ni].diffpct < 0 else 'stat_warning' }}">
                 {% if fund.nav_diff  and ni < fund.nav_diff|length %}
                     {{ "{:+,.2f}".format(fund.nav_diff[ni].diffpct) }}
                 {% else %}
@@ -169,6 +162,7 @@
             </td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 
 

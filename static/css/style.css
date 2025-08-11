@@ -15,3 +15,15 @@ th { background: #f0f0f0; }
 /* Table styles */
 td.rightalign { text-align: right; }
 td.centeralign { text-align: center; }
+
+/* Scrollable table */
+table.scrollable {
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+}
+
+/* Stats styles */
+.stat_positive { color: green; }
+.stat_negative { color: red; }
+.stat_warning { color: orange; }
