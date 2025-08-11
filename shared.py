@@ -22,7 +22,7 @@ def _save_nav(fund: Fund, date, price, cur: sqlite3.Cursor = None):
         cur = conn.cursor()
         local_cursor = True
 
-    cur.execute("INSERT OR IGNORE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
+    cur.execute("INSERT OR REPLACE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
                 (fund.fund_id, date, price))  # Initialize with None values
 
     if local_cursor:
