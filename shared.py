@@ -31,6 +31,24 @@ def _save_nav(fund: Fund, date, price, cur: sqlite3.Cursor = None):
 
 
 
+def _save_dividend(fund: Fund, date, amount, accounting_period, cur: sqlite3.Cursor = None):
+    """ Save the dividend for a fund to the database.
+    If cur is None, it will use create a dedicated connection + commit.
+    """
+    local_cursor = False
+    if cur is None:
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        local_cursor = True
+
+    cur.execute("INSERT OR REPLACE INTO DIVIDEND (FundID, AtDate, Amount, AccountingPeriod) VALUES (?, ?, ?, ?)",
+                (fund.fund_id, date, amount, accounting_period))  # Initialize with None values
+
+    if local_cursor:
+        conn.commit()
+        conn.close()
+
+
 def import_latest_nav(fund):
     if isinstance(fund, Fund):
         print(f"Importing NAV for fund {fund.fund_id} ({fund.name})")
@@ -125,7 +143,12 @@ def import_whole_nav(fund):
             cnt += 1
             nav_date = datetime.strptime(row[0].strip(), "%Y年%m月%d日")
             nav = int(row[1].strip())
+            _ = int(row[2].strip()) if len(row) > 2 else None #AUM
+            dividend = row[3].strip() if len(row) > 3 else None
+            accounting_period = row[4].strip() if len(row) > 4 else None
             _save_nav(fund, nav_date, nav, cur)
+            if dividend is not None and accounting_period is not None and dividend != "":
+                _save_dividend(fund, nav_date, dividend, accounting_period, cur)
 
         conn.commit()
         conn.close()

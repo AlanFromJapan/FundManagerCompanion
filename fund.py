@@ -10,6 +10,7 @@ class Fund:
         self.currency = currency
         self.codes = {}
         self.nav = {}
+        self.dividends = {}
 
     @classmethod
     def from_db_row(cls, row):
@@ -90,6 +91,24 @@ class Fund:
         if row is not None:
             return float(row[0])
         return None
+
+
+
+    def get_dividends(self):
+        """
+        Get the fund's dividends history in DESCENDING order of accounting period (latest first).
+        """
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+
+        cur.execute("SELECT AtDate, Amount, AccountingPeriod FROM DIVIDEND WHERE FundID = ? ORDER BY AccountingPeriod DESC", (self.fund_id,))
+        rows = cur.fetchall()
+
+        conn.close()
+
+        if rows is not None:
+            for row in rows:
+                self.dividends[int(row[2])] = (float(row[1]), row[0])
 
 
     @property

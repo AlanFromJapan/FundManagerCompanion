@@ -70,6 +70,15 @@ PRIMARY KEY (FundID, AtDate)
 )
 ''')
 
+cur.execute('''
+CREATE TABLE IF NOT EXISTS "DIVIDEND" (
+FundID INTEGER,
+AtDate TEXT,
+Amount INTEGER,
+AccountingPeriod INTEGER,
+PRIMARY KEY (FundID, AtDate)
+)
+''')
 
 #---------------------------------------------------------------------------
 # Offset the positions (could retrieve only transactions past jan 2022)

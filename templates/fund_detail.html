@@ -6,20 +6,20 @@
 <h2>Fund Details</h2>
 <table>
     <tr>
-        <td>Fund UID</td>
+        <th>Fund UID</th>
         <td>{{ fund.fund_id }}</td>
         <td>Last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }}</td>
     </tr>
     <tr>
-        <td>Name</td>
+        <th>Name</th>
         <td colspan="2">{{ fund.name }}</td>
     </tr>
     <tr>
-        <td>Currency</td>
+        <th>Currency</th>
         <td colspan="2">{{ fund.currency }}</td>
     </tr>
     <tr>
-        <td>Codes</td>
+        <th>Codes</th>
         <td>
             {% if fund.codes %}
                 <ul>
@@ -42,34 +42,64 @@
 </table>
 
 <h3>Statistics</h3>
-<table>
+<table class="screensplit">
     <tr>
-        <td>Latest NAV</td>
-        <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
+        <td> 
+            <!-- ==================================== LEFT SIDE ==================================== -->
+
+            <table>
+                <tr>
+                    <th>Latest NAV</th>
+                    <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
+                </tr>
+                <tr>
+                    <th>YTD Return</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
+                </tr>
+                <tr>
+                    <th>1Y Return</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
+                </tr>
+                <tr>
+                    <th>3Y Return</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
+                </tr>
+                <tr>
+                    <th>Last Year Return</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_last_year'] > 0 else 'stat_negative' if fund.stats['return_last_year'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
+                </tr>
+                
+                <tr>
+                    <th>3Y CAGR</th>
+                    <td class="{{ 'stat_positive' if fund.stats['cagr_3y'] > 0 else 'stat_negative' if fund.stats['cagr_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
+                </tr>
+                
+            </table>
+
+        </td>
+        <td>
+            <!-- ==================================== RIGHT SIDE ==================================== -->
+        
+            {% if fund.dividends %}
+            <table class="scrollable" style="max-height: 200px;">
+                <tr>
+                    <th>Dividend date [#period]</th>
+                    <th>Amount</th>
+                </tr>
+                {% for period, (amount, date) in fund.dividends.items() %}
+                <tr>
+                    <td>{{ date[:10] }}&nbsp;[#{{ period }}]</td>
+                    <td>{{ "{:,.0f}".format(amount) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+                No dividends data available.
+            {% endif %}
+        </td>
     </tr>
-    <tr>
-        <td>YTD Return</td>
-        <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
-    </tr>
-    <tr>
-        <td>1Y Return</td>
-        <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
-    </tr>
-    <tr>
-        <td>3Y Return</td>
-        <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
-    </tr>
-    <tr>
-        <td>Last Year Return</td>
-        <td class="{{ 'stat_positive' if fund.stats['return_last_year'] > 0 else 'stat_negative' if fund.stats['return_last_year'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
-    </tr>
-    
-    <tr>
-        <td>3Y CAGR</td>
-        <td class="{{ 'stat_positive' if fund.stats['cagr_3y'] > 0 else 'stat_negative' if fund.stats['cagr_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
-    </tr>
-    
 </table>
+
 
 <h3>Fund related actions</h3>
 <details>

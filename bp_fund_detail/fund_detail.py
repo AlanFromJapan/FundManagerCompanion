@@ -27,6 +27,9 @@ def show_fund_page(fund_id):
     # Fetch latest known NAV for the fund from DB
     fund.get_fund_nav(MAX_NAV_LIMIT)
 
+    # Get dividends
+    fund.get_dividends()
+
     # Prepare data for the chart
     if fund.nav:
         #reverse the nav_sorted to have oldest first (L to R)
