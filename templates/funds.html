@@ -5,21 +5,20 @@
 {% block content %}
 <h2>Funds List ({{ pos | length }} funds)  </h2>
 
-<form method="post" action="/funds">
-    <input type="hidden" name="update_nav" value="true">
-    <input type="submit" value="Update ALL funds latest NAV">
-</form>
-<form method="post" action="/funds">
-    <input type="hidden" name="update_history_nav" value="true">
-    <input type="submit" value="Update ALL funds HISTORICAL NAV">
-</form>
-<form method="post" action="/funds">
-    <input type="hidden" name="update_whole_nav" value="true">
-    <input type="submit" value="Update ALL funds WHOLE NAV from Investment Trust Association">
-</form>
-Total position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円
+
+<span class="total_positions">Total estimated position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span>
+
 <table>
-        <tr><th>FundID</th><th>Name</th><th>Currency</th><th>Current shares</th><th>Current amount</th><th>Latest NAV</th><th>Latest NAV Date</th></tr>
+        <tr>
+            <th>FundID</th>
+            <th>Name</th>
+            <th>Currency</th>
+            <th>Current shares</th>
+            <th>Current amount</th>
+            <th>Latest NAV</th>
+            <th>Latest NAV Date</th>
+            <th>YtD NAV Δ%</th>
+        </tr>
     {% for p in pos %}
     <tr>
         <td>{{ p["fund_id"] }}</td>
@@ -29,9 +28,25 @@ Total position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
         <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
+        <td class="rightalign {{ 'stat_positive' if p['ytd_perf'] > 0 else 'stat_negative' }}">{{ "{:+,.2f}%".format(p["ytd_perf"]) }}</td>
     </tr>
     {% endfor %}
 </table>
+<details>
+    <summary>Fund NAV refresh actions (click to unfold)</summary>
+    <form method="post" action="/funds">
+        <input type="hidden" name="update_nav" value="true">
+        <input type="submit" value="Update ALL funds latest NAV">
+    </form>
+    <form method="post" action="/funds">
+        <input type="hidden" name="update_history_nav" value="true">
+        <input type="submit" value="Update ALL funds HISTORICAL NAV">
+    </form>
+    <form method="post" action="/funds">
+        <input type="hidden" name="update_whole_nav" value="true">
+        <input type="submit" value="Update ALL funds WHOLE NAV from Investment Trust Association">
+    </form>
+</details>
 {% endblock %}
 
     

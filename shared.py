@@ -171,8 +171,17 @@ def get_latest_positions():
     cur = conn.cursor()
     
     cur.execute("""
+	
 SELECT 
-    F.FundID, F.Name, F.Currency, P.Unit as LatestUnit, P.AtDate as LatestDateHolding, NAVS.NAV as LatestNAV, NAVS.AtDate as LatestDateNAV
+    F.FundID, 
+    F.Name, 
+    F.Currency, 
+    P.Unit as LatestUnit, 
+    P.AtDate as LatestDateHolding, 
+    NAVS.NAV as LatestNAV, 
+    NAVS.AtDate as LatestDateNAV, 
+    NAV_JAN1.NAV as NAV_JAN1,
+	((NAVS.NAV - NAV_JAN1.NAV) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDPerf
 from 
     FUND as F 
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
@@ -184,9 +193,18 @@ from
     1=1
     GROUP BY N.FundId having N.AtDate = Max(N.AtDate)
     ) as NAVS ON F.FundId = NAVS.FundId
-WHERE
+
+	LEFT OUTER JOIN (
+    SELECT N.FundId, N.AtDate, N.NAV as NAV
+    from FUND_NAV as N
+    WHERE
     1=1
-    AND P.Unit > 0
+	AND N.AtDate >= date('now', 'start of year')
+	GROUP BY N.FundId
+	) as NAV_JAN1 ON NAV_JAN1.FundId = F.FundId
+WHERE
+    1=1    
+    AND P.Unit > 0	
                 
 """)
 
@@ -199,6 +217,8 @@ WHERE
         latest_date_position = row[4]
         latest_nav = row[5]
         latest_date_nav = row[6]
+        nav_jan1 = row[7]
+        ytd_perf = row[8]
 
         pos.append({
             'fund_id': fund_id,
@@ -207,7 +227,9 @@ WHERE
             'latest_unit': latest_unit,
             'latest_date_position': latest_date_position,
             'latest_nav': latest_nav,
-            'latest_date_nav': latest_date_nav
+            'latest_date_nav': latest_date_nav,
+            'nav_jan1': nav_jan1,
+            'ytd_perf': ytd_perf
         })
         
     conn.close()

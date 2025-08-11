@@ -27,3 +27,13 @@ table.scrollable {
 .stat_positive { color: green; }
 .stat_negative { color: red; }
 .stat_warning { color: orange; }
+
+/* All funds screen */
+.total_positions {
+    font-weight: bold;
+    text-align: right;
+    border: black 2px solid;
+    width: 100%;
+    padding: 4px 4px;
+    background-color: goldenrod;
+}
