@@ -41,6 +41,47 @@
     </tr>
 </table>
 
+<h3>Statistics</h3>
+<table>
+    <tr>
+        <td>Latest NAV</td>
+        <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
+    </tr>
+    <tr>
+        <td>YTD Return</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
+    </tr>
+    <tr>
+        <td>1Y Return</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
+    </tr>
+    <tr>
+        <td>3Y Return</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
+    </tr>
+    <tr>
+        <td>Last Year Return</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
+    </tr>
+    <tr>
+        <td>YTD CAGR</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_ytd'])  }}</td>
+    </tr>
+    <tr>
+        <td>1Y CAGR</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_1y'])  }}</td>
+    </tr>
+    <tr>
+        <td>3Y CAGR</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
+    </tr>
+    <tr>
+        <td>Last Year CAGR</td>
+        <td>{{ "{:+,.2f}%".format(fund.stats['cagr_last_year'])  }}</td>
+    </tr>
+</table>
+
+
 <form method="post" action="/funds/{{ fund.fund_id }}">
     <input type="hidden" name="update_nav" value="true">
     <input type="submit" value="Update NAV">
@@ -56,6 +97,9 @@
 
 
 {% if fund.nav %}
+
+    <!--   --------------------------------------------------------------------------- -->
+
     <h3>NAV Chart ({{chartData[3]}} latest)</h3>
     <canvas id="myChart" ></canvas>
 

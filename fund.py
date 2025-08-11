@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 from config import conf
 
@@ -58,6 +59,9 @@ class Fund:
     
 
     def get_fund_nav(self, limit=100):
+        """
+        Get the fund's NAV history in DESCENDING order (latest first).
+        """
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 
@@ -69,3 +73,70 @@ class Fund:
         if rows is not None:
             for row in rows:
                 self.nav[row[0]] = float(row[1])
+
+
+    def get_fund_nav_at_date(self, at_date):
+        """
+        Get the NAV for the fund at a specific date or immediately after.
+        """
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+
+        cur.execute("SELECT NAV FROM FUND_NAV WHERE FundID = ? AND AtDate >= ? ORDER BY AtDate ASC LIMIT 1", (self.fund_id, at_date))
+        row = cur.fetchone()
+
+        conn.close()
+
+        if row is not None:
+            return float(row[0])
+        return None
+
+
+    @property
+    def stats(self) -> dict:
+        return self.stats_get_panel()
+
+    def stats_get_panel(self) -> dict:
+        """
+        Get the statistics panel data.
+        """
+        today = datetime.date.today()
+        start_of_year = datetime.datetime(today.year, 1, 1)
+        start_of_last_year = datetime.datetime(today.year - 1, 1, 1)
+        one_year_ago = today.replace(year=today.year - 1)
+        three_years_ago = today.replace(year=today.year - 3)
+
+        
+        return {
+            "latest_nav": self.latest_nav,
+            "nav_diff": self.nav_diff,
+            
+            "return_ytd": self.stats_nav_return(self.get_fund_nav_at_date(start_of_year), self.latest_nav),
+            "return_1y": self.stats_nav_return(self.get_fund_nav_at_date(one_year_ago), self.latest_nav),
+            "return_3y": self.stats_nav_return(self.get_fund_nav_at_date(three_years_ago), self.latest_nav),
+            "return_last_year": self.stats_nav_return(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year)),
+
+            "cagr_ytd": self.stats_cagr(self.get_fund_nav_at_date(start_of_year), self.latest_nav, 1),
+            "cagr_1y": self.stats_cagr(self.get_fund_nav_at_date(one_year_ago), self.latest_nav, 1),
+            "cagr_3y": self.stats_cagr(self.get_fund_nav_at_date(three_years_ago), self.latest_nav, 3),
+            "cagr_last_year": self.stats_cagr(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year), 1)
+
+        }
+
+
+    def stats_nav_return(self, initial_nav, final_nav):
+        """
+        Calculate the return percentage based on initial and final NAV.
+        """
+        if initial_nav == 0 or not initial_nav:
+            return 0.0
+        return (final_nav - initial_nav) / initial_nav * 100.0
+    
+
+    def stats_cagr(self, initial_nav, final_nav, years):
+        """
+        Calculate the Compound Annual Growth Rate (CAGR).
+        """
+        if years <= 0 or initial_nav == 0 or not initial_nav:
+            return 0.0
+        return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
