@@ -108,7 +108,7 @@ class Fund:
 
         if rows is not None:
             for row in rows:
-                self.dividends[int(row[2])] = (float(row[1]), row[0])
+                self.dividends[int(row[2]) if row[2] is not None and row[2] != "" else 0] = (float(row[1]), row[0])
 
 
     @property
