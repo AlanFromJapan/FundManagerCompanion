@@ -16,6 +16,14 @@ def _save_nav(fund: Fund, date, price, cur: sqlite3.Cursor = None):
     """ Save the NAV for a fund to the database.
     If cur is None, it will use create a dedicated connection + commit.
     """
+
+    if date is None or price is None:
+        raise ValueError("Date and price must not be None")
+
+    if date > datetime.now().today():
+        print(f"IGNORING FUTURE DATE NAV {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}")
+        return
+
     local_cursor = False
     if cur is None:
         conn = sqlite3.connect(conf['DB_PATH'])
