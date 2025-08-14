@@ -8,15 +8,11 @@
     <tr>
         <th>Fund UID</th>
         <td>{{ fund.fund_id }}</td>
-        <td>Last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }}</td>
+        <td>Last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }} {{ fund.currency }}</td>
     </tr>
     <tr>
         <th>Name</th>
         <td colspan="2">{{ fund.name }}</td>
-    </tr>
-    <tr>
-        <th>Currency</th>
-        <td colspan="2">{{ fund.currency }}</td>
     </tr>
     <tr>
         <th>Codes</th>
