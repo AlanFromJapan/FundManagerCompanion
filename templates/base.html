@@ -15,27 +15,29 @@
         <table>
             <thead>
                 <tr>
+                    {% if options.show_fund %}
+                    <th>Fund</th>
+                    {% endif %}
                     <th>Date</th>
                     <th>Type</th>
                     <th>Quantity</th>
                     <th>Amount</th>
-                    <th>Price</th>
-                    {% if options.show_fund %}
-                    <th>Fund</th>
-                    {% endif %}
+                    <th>Price/10k unit</th>
+
                 </tr>
             </thead>
             <tbody>
                 {% for item in xact %}
                 <tr>
-                    <td>{{ item.date }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.amount }}</td>
-                    <td>{{ item.price }}</td>
                     {% if options.show_fund %}
-                    <td>{{ options.fundname }}</td>
+                    <td><a href="/funds/{{ item.fundid }}">{{ item.fundname }}</a></td>
                     {% endif %}
+                    <td>{{ item.trade_date }}</td>
+                    <td>{{ item.xtype.to_emoji() }} {{ item.xtype.to_short() }}</td>
+                    <td class="rightalign">{{ "{:,.0f}".format(item.unit) }}</td>
+                    <td class="rightalign">{{ "{:,.0f}".format(item.amount) }}円</td>
+                    <td class="rightalign">{{ "{:,.0f}".format(item.unit_price) }}円</td>
+
                 </tr>
                 {% endfor %}
             </tbody>

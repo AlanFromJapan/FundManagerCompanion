@@ -1,7 +1,41 @@
 import datetime
 import sqlite3
 from config import conf
+from enum import Enum
 
+class TransactionType(Enum):
+    BUY = "お買付"
+    SELL = "解約"
+    DIVIDEND_REINVEST = "再投資買付"
+    DIVIDEND_RECEIVED = "分配金"
+    OTHER = "OTHER"
+
+    
+    def to_emoji(self)-> str:
+        match self:
+            case TransactionType.BUY:
+                return "💸"
+            case TransactionType.SELL:
+                return "💰"
+            case TransactionType.DIVIDEND_REINVEST:
+                return "♻️"
+            case TransactionType.DIVIDEND_RECEIVED:
+                return "🪙"
+            case TransactionType.OTHER:
+                return "❓"
+
+    def to_short(self) -> str:
+        match self:
+            case TransactionType.BUY:
+                return "Buy"
+            case TransactionType.SELL:
+                return "Sell"
+            case TransactionType.DIVIDEND_REINVEST:
+                return "Div Reinvest"
+            case TransactionType.DIVIDEND_RECEIVED:
+                return "Div Received"
+            case TransactionType.OTHER:
+                return "Other"
 
 class Fund:
     def __init__(self, fund_id, name, currency):

@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, flash, current_app
 import sqlite3
 
 import requests
-from fund import Fund
+from fund import Fund, TransactionType
 from config import conf 
 
 from nav.yahoo_fin_provider import YahooFinProvider
@@ -257,5 +257,37 @@ WHERE
     return pos
 
 
-def get_transactions(fund_id):
-    raise NotImplementedError("This function is not implemented yet. Please implement it in the future.")
+
+
+def get_transactions(fund: Fund = None):
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+
+    cur.execute("""
+SELECT X.*, F.Name as FundName
+FROM XACT as X JOIN FUND as F ON X.FundID = F.FundID
+WHERE 1=1
+AND (X.FundID = ? OR ? IS NULL)
+ORDER BY TradeDate DESC""",
+(fund.fund_id if fund else None, fund.fund_id if fund else None))
+
+    rows = cur.fetchall()
+    transactions = []
+    
+    for row in rows:
+        transactions.append({
+            'trade_date': row[1],
+            'exec_date': row[2],
+            'type': row[3],
+            'xtype': TransactionType(row[3]),
+            'fundid': row[4],
+            'unit': row[5],
+            'unit_price': row[6],
+            'amount': row[7],
+            'currency': row[8],
+            'fundname': row[9],
+        })
+
+    conn.close()
+    return transactions
