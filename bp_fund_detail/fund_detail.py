@@ -30,6 +30,9 @@ def show_fund_page(fund_id):
     # Get dividends
     fund.get_dividends()
 
+    # Get transactions
+    fund.get_transactions()
+
     # Prepare data for the chart
     if fund.nav:
         #reverse the nav_sorted to have oldest first (L to R)
@@ -39,6 +42,8 @@ def show_fund_page(fund_id):
 
         values = [{'x': date, 'y': int(nav)} for date, nav in snav]
         labels = [date[:10] for date, _ in snav]
+
+
 
 
     return render_template('fund_detail.html', fund=fund, chartData=(values, labels, MAX_NAV_LIMIT, MAX_NAV_SHOWN))

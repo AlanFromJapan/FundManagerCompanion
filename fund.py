@@ -3,6 +3,7 @@ import sqlite3
 from config import conf
 from enum import Enum
 
+
 class TransactionType(Enum):
     BUY = "お買付"
     SELL = "解約"
@@ -45,6 +46,8 @@ class Fund:
         self.codes = {}
         self.nav = {}
         self.dividends = {}
+        self.transactions = []
+
 
     @classmethod
     def from_db_row(cls, row):
@@ -143,6 +146,47 @@ class Fund:
         if rows is not None:
             for row in rows:
                 self.dividends[int(row[2]) if row[2] is not None and row[2] != "" else 0] = (float(row[1]), row[0])
+
+
+    def get_transactions(self):
+        x = Fund.get_all_transactions(self.fund_id)
+        if x is not None:
+            self.transactions = x
+
+
+    @classmethod
+    def get_all_transactions(cls, fund_id: int = None):
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+
+        cur.execute("""
+    SELECT X.*, F.Name as FundName
+    FROM XACT as X JOIN FUND as F ON X.FundID = F.FundID
+    WHERE 1=1
+    AND (X.FundID = ? OR ? IS NULL)
+    ORDER BY TradeDate DESC""",
+    (fund_id if fund_id else None, fund_id if fund_id else None))
+
+        rows = cur.fetchall()
+        transactions = []
+        
+        for row in rows:
+            transactions.append({
+                'trade_date': row[1],
+                'exec_date': row[2],
+                'type': row[3],
+                'xtype': TransactionType(row[3]),
+                'fundid': row[4],
+                'unit': row[5],
+                'unit_price': row[6],
+                'amount': row[7],
+                'currency': row[8],
+                'fundname': row[9],
+            })
+
+        conn.close()
+        return transactions
+
 
 
     @property
