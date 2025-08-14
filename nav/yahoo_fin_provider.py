@@ -38,7 +38,7 @@ class YahooFinProvider(NAVProvider):
 
 
 
-    def get_history_nav(self, fund) -> dict:
+    def get_history_nav(self, fund):
         request_url = url_history.replace("{?}", fund.codes['yahoo_finance'])
         
         nav_dict = {}
@@ -70,7 +70,8 @@ class YahooFinProvider(NAVProvider):
         except Exception as e:
             print(f"Error fetching NAV for {fund.codes['yahoo_finance']} at URL [{request_url}]: {e}")
         
-        return nav_dict
+        #second value is None since we don't return the dividends
+        return nav_dict, None
         
 
 if __name__ == "__main__":

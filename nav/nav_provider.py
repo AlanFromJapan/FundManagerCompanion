@@ -21,9 +21,9 @@ class NAVProvider(ABC):
         pass
 
     @abstractmethod
-    def get_history_nav(self, fund) -> dict:
+    def get_history_nav(self, fund):
         """
-        Return a dictionary with dates as keys and NAVs as values for the given fund.
+        Return a dictionary with dates as keys and NAVs as values for the given fund, and a dictionary with dividends date -> (div amount, #period)
         """
         pass
 

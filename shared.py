@@ -9,6 +9,7 @@ from fund import Fund
 from config import conf 
 
 from nav.yahoo_fin_provider import YahooFinProvider
+from nav.toushinkyokai_provider import toshinkyokai_provider
 nav_provider = YahooFinProvider()
 
 
@@ -85,7 +86,7 @@ def import_history_nav(fund):
         print(f"Importing History NAV for fund {fund.fund_id} ({fund.name})")
 
         # Fetch historical NAVs
-        history_nav = nav_provider.get_history_nav(fund)
+        history_nav, _ = nav_provider.get_history_nav(fund)
         if history_nav is None or not history_nav or len(history_nav) == 0:
             flash(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})", "error")
             return
@@ -125,43 +126,31 @@ def import_whole_nav(fund):
         return
 
     try:
-        URL_ITA = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd={isin}&associFundCd={id}"
-        # Placeholder for actual implementation
-        # This should include fetching data from the IITA and updating the fund's NAV
-        print(f"Importing whole NAV for fund: {fund.fund_id}")
-        # Example: fund.update_nav_from_iita()
-        url = URL_ITA.format(isin=fund.codes["ISIN"], id=fund.codes["yahoo_finance"] if fund.codes.get("toushinkyokai") is None else fund.codes.get("toushinkyokai"))
-        print(f"Fetching NAV from URL: {url}")
-        # Here you would implement the logic to fetch the CSV from the URL and update the fund
-        response = requests.get(url)
-        response.raise_for_status()
-        response_raw = response.text
-        response_decoded = response_raw.encode('utf-8').decode('utf-8-sig')  # Handle BOM if present
-        csv_data = io.StringIO(response_decoded)
-        # Now csv_data can be used to read the CSV content in memory
-        reader = csv.reader(csv_data, delimiter=',')
         cnt = 0
+        cntd = 0
+
+        nav_dict, div_dict = toshinkyokai_provider().get_history_nav(fund)
+
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
-        for row in reader:
-            if cnt == 0:
-                # Skip header row
+
+
+        if nav_dict:
+            for date, nav_price in nav_dict.items():
+                _save_nav(fund, date, nav_price, cur)
                 cnt += 1
-                continue
-            cnt += 1
-            nav_date = datetime.strptime(row[0].strip(), "%Y年%m月%d日")
-            nav = int(row[1].strip())
-            _ = int(row[2].strip()) if len(row) > 2 else None #AUM
-            dividend = row[3].strip() if len(row) > 3 else None
-            accounting_period = row[4].strip() if len(row) > 4 else None
-            _save_nav(fund, nav_date, nav, cur)
-            if dividend is not None and accounting_period is not None and dividend != "":
-                _save_dividend(fund, nav_date, dividend, accounting_period, cur)
+        
+        if div_dict:
+            for date, (dividend, accounting_period) in div_dict.items():
+                _save_dividend(fund, date, dividend, accounting_period, cur)
+                cntd += 1
+
 
         conn.commit()
         conn.close()
-        print(f"Total rows processed: {cnt}")
-        flash(f"Imported {cnt} NAV records for fund {fund.fund_id} ({fund.name})", "info")
+
+        print(f"Total NAV/Div processed: {cnt}/{cntd}")
+        flash(f"Imported {cnt} NAV & {cntd} Dividend records for fund {fund.fund_id} ({fund.name})", "info")
     except Exception as e:
         print(f"Error importing whole NAV for fund {fund.fund_id} ({fund.name}): {e}")
         flash(f"Failed to import whole NAV for fund {fund.fund_id} ({fund.name}): see logs for details {e}", "error")
