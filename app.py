@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from config import conf 
 
 from nav.yahoo_fin_provider import YahooFinProvider
@@ -18,6 +18,9 @@ app.register_blueprint(bp_admin)
 app.register_blueprint(bp_transactions)
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(app.static_folder, 'favicon.png', mimetype='image/png')
 
 @app.route('/')
 @app.route('/home')
