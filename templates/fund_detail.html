@@ -48,15 +48,21 @@
                     <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
                 </tr>
                 <tr>
-                    <th>YTD Return (excess)</th>
+                    <th class="tooltip">YTD Return (excess)
+                        <span class="tooltiptext">Year-to-Date Return (excess = discarding the risk free investment ratio)</span>
+                    </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_ytd'])  }})</td>
                 </tr>
                 <tr>
-                    <th>1Y Return (excess)</th>
+                    <th class="tooltip">1Y Return (excess)
+                        <span class="tooltiptext">1-Year Return (excess = discarding the risk free investment ratio)</span>
+                    </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_1y'])  }})</td>
                 </tr>
                 <tr>
-                    <th>3Y Return (excess)</th>
+                    <th class="tooltip">3Y Return (excess)
+                        <span class="tooltiptext">3-Year Return (excess = discarding the risk free investment ratio)</span>
+                    </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_3y'])  }})</td>
                 </tr>
                 <tr>
@@ -65,7 +71,9 @@
                 </tr>
                 
                 <tr>
-                    <th>3Y CAGR</th>
+                    <th class="tooltip">3Y CAGR
+                        <span class="tooltiptext">3-Year Compound Annual Growth Rate: assuming you reinvest dividends in the fund, this AVERAGED performance is useful for long term comparison of performance of funds</span>
+                    </th>
                     <td class="{{ 'stat_positive' if fund.stats['cagr_3y'] > 0 else 'stat_negative' if fund.stats['cagr_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['cagr_3y'])  }}</td>
                 </tr>
                 
