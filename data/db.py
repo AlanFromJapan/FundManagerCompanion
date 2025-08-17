@@ -80,6 +80,14 @@ PRIMARY KEY (FundID, AtDate)
 )
 ''')
 
+cur.execute('''
+CREATE TABLE IF NOT EXISTS "CONFIG" (
+Key TEXT PRIMARY KEY,
+Value TEXT,
+LastUpdate TEXT
+)
+''')
+
 #---------------------------------------------------------------------------
 # Offset the positions (could retrieve only transactions past jan 2022)
 # Read CSV and get headers
