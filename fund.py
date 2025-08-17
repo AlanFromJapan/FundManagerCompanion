@@ -216,18 +216,22 @@ class Fund:
             "cagr_ytd": self.stats_cagr(self.get_fund_nav_at_date(start_of_year), self.latest_nav, 1),
             "cagr_1y": self.stats_cagr(self.get_fund_nav_at_date(one_year_ago), self.latest_nav, 1),
             "cagr_3y": self.stats_cagr(self.get_fund_nav_at_date(three_years_ago), self.latest_nav, 3),
-            "cagr_last_year": self.stats_cagr(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year), 1)
+            "cagr_last_year": self.stats_cagr(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year), 1),
+
+            "excess_return_ytd": self.stats_nav_return(self.get_fund_nav_at_date(start_of_year), self.latest_nav, conf.risk_free_rate  * float(today.timetuple().tm_yday) / 365.0),
+            "excess_return_1y": self.stats_nav_return(self.get_fund_nav_at_date(one_year_ago), self.latest_nav, conf.risk_free_rate),
+            "excess_return_3y": self.stats_nav_return(self.get_fund_nav_at_date(three_years_ago), self.latest_nav, conf.risk_free_rate * 3),
 
         }
 
 
-    def stats_nav_return(self, initial_nav, final_nav):
+    def stats_nav_return(self, initial_nav, final_nav, risk_free_rate=0.0):
         """
         Calculate the return percentage based on initial and final NAV.
         """
         if initial_nav == 0 or not initial_nav:
             return 0.0
-        return (final_nav - initial_nav) / initial_nav * 100.0
+        return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
     
 
     def stats_cagr(self, initial_nav, final_nav, years):

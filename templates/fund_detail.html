@@ -48,16 +48,16 @@
                     <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
                 </tr>
                 <tr>
-                    <th>YTD Return</th>
-                    <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }}</td>
+                    <th>YTD Return (excess)</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_ytd'])  }})</td>
                 </tr>
                 <tr>
-                    <th>1Y Return</th>
-                    <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }}</td>
+                    <th>1Y Return (excess)</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_1y'])  }})</td>
                 </tr>
                 <tr>
-                    <th>3Y Return</th>
-                    <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }}</td>
+                    <th>3Y Return (excess)</th>
+                    <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_3y'])  }})</td>
                 </tr>
                 <tr>
                     <th>Last Year Return</th>
