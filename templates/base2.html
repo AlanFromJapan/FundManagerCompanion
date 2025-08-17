@@ -1,0 +1,18 @@
+{% extends 'master.html' %}
+
+{% block body_content %}
+
+<script lang="javascript">
+    document.getElementById('main').style.maxWidth = '1600px';
+</script>
+
+<table class="two-column-layout">
+    <tbody>
+        <tr>
+            <td>{% block content_left %}{% endblock %}</td>
+            <td>{% block content_right %}{% endblock %}</td>
+        </tr>
+    </tbody>
+</table>
+    
+{% endblock %}

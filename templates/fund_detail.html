@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block title %}Funds Detail{% endblock %}
 
-{% block content %}
+{% block content_left %}
 <h2>Fund Details</h2>
 <table>
     <tr>
@@ -42,7 +42,6 @@
     <tr>
         <td> 
             <!-- ==================================== LEFT SIDE ==================================== -->
-
             <table>
                 <tr>
                     <th>Latest NAV</th>
@@ -196,7 +195,18 @@
     No NAV data available.
 {% endif %}
 
-<h3>Transactions</h3>
+{% endblock %}
+
+
+<!-- *****************************************************************************************************  -->
+
+<!-- ************************************ Right side content *********************************************  -->
+
+<!-- *****************************************************************************************************  -->
+
+{% block content_right %}
+<h2>My investments</h2>
+<h3>My transactions</h3>
 {% if fund.transactions %}
     {{ xact_table(fund.transactions, {'show_fund': False, 'fundname': fund.name}) }}
 {% else %}

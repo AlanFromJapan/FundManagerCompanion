@@ -74,6 +74,20 @@ table.scrollable {
     white-space: nowrap;
 }
 
+/* Two-column page layout table */
+table.two-column-layout {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: none;
+}
+table.two-column-layout > tbody > tr > td {
+    width: 50%;
+    padding: 10px;
+    vertical-align: top;
+    border: none;
+}
+
 /* Stats styles */
 .stat_positive { color: green; }
 .stat_negative { color: red; }
