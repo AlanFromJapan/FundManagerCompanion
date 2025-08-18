@@ -17,7 +17,9 @@
             <th>Current amount</th>
             <th>Latest NAV</th>
             <th>Latest NAV Date</th>
-            <th>YtD NAV Δ%</th>
+            <th class="tooltip">YtD Total Return%
+                <span class="tooltiptext">Year-to-Date Total Return Percentage (NAV difference including received dividends)</span>
+            </th>
         </tr>
     {% for p in pos %}
     <tr>
@@ -28,7 +30,7 @@
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
         <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
-        <td class="rightalign {{ 'stat_positive' if p['ytd_perf'] > 0 else 'stat_negative' }}">{{ "{:+,.2f}%".format(p["ytd_perf"]) }}</td>
+        <td class="rightalign {{ 'stat_positive' if p['ytd_total_return'] > 0 else 'stat_negative' }}">{{ "{:+,.2f}%".format(p["ytd_total_return"]) }}</td>
     </tr>
     {% endfor %}
 </table>
