@@ -22,3 +22,21 @@ Seems that the Nikkei Journal has a page with all needed, no paywall, and parsea
 See `https://www.nikkei.com/nkd/fund/?fcode=0131106B` or `https://www.nikkei.com/nkd/fund/?fcode=03311112` (same fund as above) BUT THE PRICES ARE DELAYED (now 21:30 and still D-1 prices)
 
 Also Yahoo Finance is similar with `https://finance.yahoo.co.jp/quote/0131106B` and `https://finance.yahoo.co.jp/quote/03311112` (same fund as above) AND PRICES SEEM LATEST (at 21:30 I'm seeing day D closure prices)
+
+# Financial indicators
+
+## Fund NAV return
+Simplest performance calculation:
+
+(NAV end - NAV start) / Nav Start * 100%
+
+## Fund NAV Total return
+Better, including the dividends paid by fund:
+
+((NAV end - NAV start) + Dividends paid over period) / Nav Start * 100%
+
+## Fund NAV Total Excess return
+Even better, including the dividends paid by fund minus the risk free interest rate:
+
+(((NAV end - NAV start) + Dividends paid over period) / Nav Start * 100%) - Risk Free Interest rate
+

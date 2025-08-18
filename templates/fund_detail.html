@@ -89,10 +89,10 @@
                     <th>Dividend date [#period]</th>
                     <th>Amount</th>
                 </tr>
-                {% for period, (amount, date) in fund.dividends.items() %}
+                {% for d in fund.dividends %}
                 <tr>
-                    <td>{{ date[:10] }}&nbsp;[#{{ period }}]</td>
-                    <td>{{ "{:,.0f}".format(amount) }}</td>
+                    <td>{{ d['date'].strftime('%Y-%m-%d') }}&nbsp;[#{{ d['accounting_period'] }}]</td>
+                    <td>{{ "{:,.0f}".format(d['amount']) }}</td>
                 </tr>
                 {% endfor %}
             </table>

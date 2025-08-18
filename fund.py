@@ -45,7 +45,7 @@ class Fund:
         self.currency = currency
         self.codes = {}
         self.nav = {}
-        self.dividends = {}
+        self.dividends = None
         self.transactions = []
 
 
@@ -138,14 +138,30 @@ class Fund:
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 
-        cur.execute("SELECT AtDate, Amount, AccountingPeriod FROM DIVIDEND WHERE FundID = ? ORDER BY AccountingPeriod DESC", (self.fund_id,))
+        cur.execute("SELECT AtDate, Amount, AccountingPeriod FROM DIVIDEND WHERE FundID = ? ORDER BY AtDate DESC", (self.fund_id,))
         rows = cur.fetchall()
 
         conn.close()
 
+        self.dividends = []  # Reset dividends list
         if rows is not None:
             for row in rows:
-                self.dividends[int(row[2]) if row[2] is not None and row[2] != "" else 0] = (float(row[1]), row[0])
+                #dividends are (date, amount, accounting_period (if present))
+                self.dividends.append(dict(date=datetime.datetime.strptime(row[0][:10], "%Y-%m-%d").date(), amount=float(row[1]), accounting_period=int(row[2]) if row[2] is not None and row[2] != "" else 0))
+
+
+    def get_dividends_between_dates(self, start_date, end_date):
+        """
+        Get the fund's dividends between two dates.
+        """
+        if not self.dividends:
+            self.get_dividends()
+
+        res = []
+        for d in self.dividends:
+            if start_date <= d['date'] and (end_date is None or d['date'] <= end_date):
+                res.append(d)
+        return res
 
 
     def get_transactions(self):
@@ -191,15 +207,12 @@ class Fund:
 
     @property
     def stats(self) -> dict:
-        return self.stats_get_panel()
-
-    def stats_get_panel(self) -> dict:
         """
         Get the statistics panel data.
         """
         today = datetime.date.today()
-        start_of_year = datetime.datetime(today.year, 1, 1)
-        start_of_last_year = datetime.datetime(today.year - 1, 1, 1)
+        start_of_year = datetime.datetime(today.year, 1, 1).date()
+        start_of_last_year = datetime.datetime(today.year - 1, 1, 1).date()
         one_year_ago = today.replace(year=today.year - 1)
         three_years_ago = today.replace(year=today.year - 3)
 
@@ -207,28 +220,41 @@ class Fund:
         return {
             "latest_nav": self.latest_nav,
             "nav_diff": self.nav_diff,
-            
-            "return_ytd": self.stats_nav_return(self.get_fund_nav_at_date(start_of_year), self.latest_nav),
-            "return_1y": self.stats_nav_return(self.get_fund_nav_at_date(one_year_ago), self.latest_nav),
-            "return_3y": self.stats_nav_return(self.get_fund_nav_at_date(three_years_ago), self.latest_nav),
-            "return_last_year": self.stats_nav_return(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year)),
+
+            "return_ytd": self.stats_nav_return(start_of_year, None, include_dividends=True),
+            "return_1y": self.stats_nav_return(one_year_ago, None, include_dividends=True),
+            "return_3y": self.stats_nav_return(three_years_ago, None, include_dividends=True),
+            "return_last_year": self.stats_nav_return(start_of_last_year, start_of_year, include_dividends=True),
 
             "cagr_ytd": self.stats_cagr(self.get_fund_nav_at_date(start_of_year), self.latest_nav, 1),
             "cagr_1y": self.stats_cagr(self.get_fund_nav_at_date(one_year_ago), self.latest_nav, 1),
             "cagr_3y": self.stats_cagr(self.get_fund_nav_at_date(three_years_ago), self.latest_nav, 3),
             "cagr_last_year": self.stats_cagr(self.get_fund_nav_at_date(start_of_last_year), self.get_fund_nav_at_date(start_of_year), 1),
 
-            "excess_return_ytd": self.stats_nav_return(self.get_fund_nav_at_date(start_of_year), self.latest_nav, conf.risk_free_rate  * float(today.timetuple().tm_yday) / 365.0),
-            "excess_return_1y": self.stats_nav_return(self.get_fund_nav_at_date(one_year_ago), self.latest_nav, conf.risk_free_rate),
-            "excess_return_3y": self.stats_nav_return(self.get_fund_nav_at_date(three_years_ago), self.latest_nav, conf.risk_free_rate * 3),
+            "excess_return_ytd": self.stats_nav_return(start_of_year, None, conf.risk_free_rate  * float(today.timetuple().tm_yday) / 365.0, include_dividends=True),
+            "excess_return_1y": self.stats_nav_return(one_year_ago, None, conf.risk_free_rate, include_dividends=True),
+            "excess_return_3y": self.stats_nav_return(three_years_ago, None, conf.risk_free_rate * 3, include_dividends=True),
 
         }
 
 
-    def stats_nav_return(self, initial_nav, final_nav, risk_free_rate=0.0):
+    def stats_nav_return(self, initial_date, final_date, risk_free_rate=0.0, include_dividends=False):
         """
         Calculate the return percentage based on initial and final NAV.
         """
+        initial_nav = self.get_fund_nav_at_date(initial_date)
+        final_nav = None
+        if final_date is None:
+            final_nav = self.latest_nav
+        else:
+            final_nav = self.get_fund_nav_at_date(final_date)
+
+        if include_dividends:
+            dividends = self.get_dividends_between_dates(initial_date, final_date)
+            sum_divs = sum([d['amount'] for d in dividends])
+            print (f"Sum divs = {sum_divs} for period {initial_date} to {final_date}")
+            final_nav += sum_divs
+
         if initial_nav == 0 or not initial_nav:
             return 0.0
         return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
