@@ -8,6 +8,7 @@ from shared import get_all_funds, import_latest_nav, get_latest_positions, impor
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
 from bp_transactions.transactions import bp_transactions
+from bp_holdings.holdings import bp_holdings
 
 app = Flask(__name__, static_url_path='')
 app.secret_key = conf['SECRET_KEY']
@@ -16,6 +17,7 @@ app.secret_key = conf['SECRET_KEY']
 app.register_blueprint(bp_fund_details)
 app.register_blueprint(bp_admin)
 app.register_blueprint(bp_transactions)
+app.register_blueprint(bp_holdings)
 
 
 @app.route('/favicon.ico')

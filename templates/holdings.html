@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Holdings{% endblock %}
+
+{% block content %}
+<h1>Holdings</h1>
+
+{% if pos %}
+    {{ holdings_table(pos, {'show_fund': True}) }}
+{% else %}
+    No holdings available.
+{% endif %}
+
+{% endblock %}
+
+{% macro holdings_table(holdings, options) %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    {% if options.show_fund %}
+                    <th>Fund</th>
+                    {% endif %}
+                    <th>Date</th>
+                    <th>Unit</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for holding in holdings %}
+                <tr>
+                    {% if options.show_fund %}
+                    <td>{{ holding.fund_id }}</td>
+                    {% endif %}
+                    <td>{{ holding.at_date }}</td>
+                    <td>{{ holding.unit }}</td>
+                    <td>{{ holding.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{%- endmacro %}

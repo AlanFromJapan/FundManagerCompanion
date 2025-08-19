@@ -267,3 +267,31 @@ WHERE
 
 def get_transactions(fund_id: int = None):
     return Fund.get_all_transactions(fund_id)
+
+
+
+def get_holdings(fund_id: int = None, limit :int = 100):
+    pos = []
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    cur.execute("""
+    select 
+                P.* 
+    from 
+                Position as P 
+    WHERE 
+                1=1
+                AND (P.FundID = ? OR ? IS NULL)                
+    order by P.AtDate DESC LIMIT ?""", (fund_id, fund_id, limit))
+
+    rows = cur.fetchall()
+    for row in rows:
+        pos.append({
+            'fund_id': row[0],
+            'at_date': row[1],
+            'unit': row[2],
+            'amount': row[3]
+        })
+    conn.close()
+    return pos

@@ -3,7 +3,7 @@
 {% block title %}Transactions history{% endblock %}
 
 {% block content %}
-<h2>Transactions</h2>
+<h1>Transactions</h1>
 {% if transactions %}
     {{ xact_table(transactions, {'show_fund': True}) }}
 {% else %}

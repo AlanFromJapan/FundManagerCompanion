@@ -24,6 +24,7 @@
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Price/10k unit</th>
+                    <th>PnL Last NAV</th>
 
                 </tr>
             </thead>
@@ -38,7 +39,7 @@
                     <td class="rightalign">{{ "{:,.0f}".format(item.unit) }}</td>
                     <td class="rightalign">{{ "{:,.0f}".format(item.amount) }}円</td>
                     <td class="rightalign">{{ "{:,.0f}".format(item.unit_price) }}円</td>
-
+                    <td class="rightalign {{ 'stat_positive' if item.last_nav_pnl > 0 else 'stat_negative' }}">{{ "{:,.0f}".format(item.last_nav_pnl) }}円</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -53,7 +54,7 @@
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('home_page') }}">Home</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('show_funds_page') }}">Funds</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_transactions.transactions_page') }}">Transactions</a></li>
-                <li style="display: inline; margin-right: 1em;"><a href="#">Holdings</a></li>
+                <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_holdings.holdings_page') }}">Holdings</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_admin.admin_page') }}">Admin</a></li>
 
             </ul>

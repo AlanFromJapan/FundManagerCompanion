@@ -176,8 +176,23 @@ class Fund:
         cur = conn.cursor()
 
         cur.execute("""
-    SELECT X.*, F.Name as FundName
-    FROM XACT as X JOIN FUND as F ON X.FundID = F.FundID
+    SELECT 
+                    X.*, 
+                    F.Name as FundName,
+                    LASTNAV.NAV as LastNAV,
+                    (X.Unit * LASTNAV.NAV / 10000) - X.XactPrice as LastNavPnL
+    FROM 
+                    XACT as X 
+                    JOIN FUND as F ON X.FundID = F.FundID
+
+                    JOIN (
+                    SELECT N.FundId, N.AtDate, N.NAV as NAV
+                    from FUND_NAV as N
+                    WHERE
+                    1=1
+                    GROUP BY N.FundId having N.AtDate = Max(N.AtDate)
+                    ) as LASTNAV ON F.FundId = LASTNAV.FundId
+
     WHERE 1=1
     AND (X.FundID = ? OR ? IS NULL)
     ORDER BY TradeDate DESC""",
@@ -198,6 +213,8 @@ class Fund:
                 'amount': row[7],
                 'currency': row[8],
                 'fundname': row[9],
+                'last_nav': row[10],
+                'last_nav_pnl': row[11],
             })
 
         conn.close()
