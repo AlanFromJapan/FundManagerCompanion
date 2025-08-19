@@ -182,6 +182,21 @@ for row in rows:
 print(f"Inserted {cnt} rows into {db_path} (XACT)")
 
 
+#The offset initial transactions: just record as a BUY
+offset_exec_date = datetime.datetime.strptime("2021-12-31", '%Y-%m-%d')
+for fund_id, adjust in offsets.items():
+    cur.execute(
+        'INSERT INTO "XACT" (TradeDate, ExecutionDate, XactType, FundId, Unit, UnitPrice, XactPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (
+            offset_exec_date.strftime('%Y-%m-%d'),
+            offset_exec_date.strftime('%Y-%m-%d'),
+            'お買付',
+            fund_id,
+            adjust,
+            0, #initially calculated positions will be false since amount shouldn't be zero
+            0  #ditto
+        )
+    )
 
 
 #---------------------------------------------------------------------------
@@ -225,14 +240,6 @@ cur.execute(
 Select FundId, ?, 0, 0 FROM FUND''',
     (previous_exec_date.strftime('%Y-%m-%d'),)
 )
-
-#offsets the positions
-for fund_id, adjust in offsets.items():
-    cur.execute(
-        'UPDATE POSITION SET Unit = ? WHERE FundID = ?',
-        (adjust, fund_id,)
-    )
-    print(f"Offsetting fund {fund_id} by {adjust} units")
 
 
 cnt = 0
