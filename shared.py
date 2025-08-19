@@ -202,7 +202,8 @@ SELECT
     NAVS.AtDate as LatestDateNAV, 
     NAV_JAN1.NAV as NAV_JAN1,
 	((NAVS.NAV - NAV_JAN1.NAV) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDPerf,
-	((NAVS.NAV - NAV_JAN1.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', 'start of year')), 0)) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDTotalReturn
+	((NAVS.NAV - NAV_JAN1.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', 'start of year')), 0)) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDTotalReturn,
+    CAST((NAVS.NAV * P.Unit) /10000 as INTEGER) as LatestPosition
 from 
     FUND as F 
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
@@ -241,6 +242,7 @@ WHERE
         nav_jan1 = row[7]
         ytd_perf = row[8]
         ytd_total_return = row[9]
+        latest_position = row[10]
 
         pos.append({
             'fund_id': fund_id,
@@ -252,7 +254,8 @@ WHERE
             'latest_date_nav': latest_date_nav,
             'nav_jan1': nav_jan1,
             'ytd_perf': ytd_perf,
-            'ytd_total_return': ytd_total_return
+            'ytd_total_return': ytd_total_return,
+            'latest_position': latest_position
         })
         
     conn.close()

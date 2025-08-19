@@ -6,7 +6,40 @@
 <h2>Funds List ({{ pos | length }} funds)  </h2>
 
 
-<span class="total_positions">Total estimated position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span>
+<table class="screensplit">
+    <tbody>
+        <tr>
+            <td>
+                <span class="total_positions">Total estimated position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span>
+            </td>
+
+            <td>
+                <canvas id="fundsDonutChart" width="500" height="200"></canvas>
+                <script>
+                    //OceanBreeze palette from Coolors (thank you!)
+                const palette = ['#03045E', '#0077B6', '#00B4D8', '#90E0EF', '#CAF0F8'];
+                const ctx = document.getElementById('fundsDonutChart').getContext('2d');
+                const zaChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["{{ pos | map(attribute='name') | join('", "') | safe }}"],
+                        datasets: [{
+                            data: [{{ pos | map(attribute='latest_position')  | join(', ') | safe }}],
+                            backgroundColor: palette,
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        legend: {
+                            display: false
+                        }
+                    }
+                });
+                </script>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 <table>
         <tr>
