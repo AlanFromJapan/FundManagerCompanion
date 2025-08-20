@@ -48,25 +48,25 @@
                     <td>{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }}</td>
                 </tr>
                 <tr>
-                    <th class="tooltip">YTD Return (excess)
-                        <span class="tooltiptext">Year-to-Date Return (excess = discarding the risk free investment ratio)</span>
+                    <th class="tooltip">YtD Total Return (excess)
+                        <span class="tooltiptext">Year-to-Date Total Return including dividends (excess = discarding the risk free investment ratio)</span>
                     </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_ytd'] > 0 else 'stat_negative' if fund.stats['return_ytd'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_ytd'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_ytd'])  }})</td>
                 </tr>
                 <tr>
-                    <th class="tooltip">1Y Return (excess)
-                        <span class="tooltiptext">1-Year Return (excess = discarding the risk free investment ratio)</span>
+                    <th class="tooltip">1Y Total Return (excess)
+                        <span class="tooltiptext">1-Year Total Return including dividends (excess = discarding the risk free investment ratio)</span>
                     </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' if fund.stats['return_1y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_1y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_1y'])  }})</td>
                 </tr>
                 <tr>
-                    <th class="tooltip">3Y Return (excess)
-                        <span class="tooltiptext">3-Year Return (excess = discarding the risk free investment ratio)</span>
+                    <th class="tooltip">3Y Total Return (excess)
+                        <span class="tooltiptext">3-Year Total Return including dividends (excess = discarding the risk free investment ratio)</span>
                     </th>
                     <td class="{{ 'stat_positive' if fund.stats['return_3y'] > 0 else 'stat_negative' if fund.stats['return_3y'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_3y'])  }} ({{ "{:+,.2f}%".format(fund.stats['excess_return_3y'])  }})</td>
                 </tr>
                 <tr>
-                    <th>Last Year Return</th>
+                    <th>Last Year Total Return</th>
                     <td class="{{ 'stat_positive' if fund.stats['return_last_year'] > 0 else 'stat_negative' if fund.stats['return_last_year'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(fund.stats['return_last_year'])  }}</td>
                 </tr>
                 
