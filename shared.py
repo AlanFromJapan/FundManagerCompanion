@@ -231,6 +231,10 @@ WHERE
 """)
 
     rows = cur.fetchall()
+    total_holdings_amt = 0
+    for row in rows:
+        total_holdings_amt += row[3] * row[5] / 10000.0
+
     for row in rows:
         fund_id = row[0]
         name = row[1]
@@ -255,7 +259,8 @@ WHERE
             'nav_jan1': nav_jan1,
             'ytd_perf': ytd_perf,
             'ytd_total_return': ytd_total_return,
-            'latest_position': latest_position
+            'latest_position': latest_position,
+            'portfolio_holding_contrib_pct': int(latest_position / total_holdings_amt * 100.0) if total_holdings_amt > 0 else 0
         })
         
     conn.close()

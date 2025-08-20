@@ -24,7 +24,7 @@
                     data: {
                         labels: ["{{ pos | map(attribute='name') | join('", "') | safe }}"],
                         datasets: [{
-                            data: [{{ pos | map(attribute='latest_position')  | join(', ') | safe }}],
+                            data: [{{ pos | map(attribute='portfolio_holding_contrib_pct')  | join(', ') | safe }}],
                             backgroundColor: palette,
                         }]
                     },
@@ -32,6 +32,16 @@
                         responsive: false,
                         legend: {
                             display: false
+                        },
+                        tooltips: {
+                            callbacks: {
+                                title: function(tooltipItem, data) {
+                                return data['labels'][tooltipItem[0]['index']];
+                                },
+                                label: function(tooltipItem, data) {
+                                return data['datasets'][0]['data'][tooltipItem['index']] + '% of portfolio';
+                                },
+                            }
                         }
                     }
                 });
