@@ -56,7 +56,7 @@
         </tr>
     {% for p in pos %}
     <tr>
-        <td>{{ p["fund_id"] }}</td>
+        <td id="td{{ p['fund_id'] }}">{{ p["fund_id"] }}</td>
         <td><a href="/funds/{{ p['fund_id'] }}">{{ p["name"] }}</a></td>
         <td>{{ p["currency"] }}</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"]) }}</td>
@@ -67,6 +67,18 @@
     </tr>
     {% endfor %}
 </table>
+<script lang="javascript">
+    //Paint the row with color of the doughnut
+    let cnt = 0;
+    for (const p of [{{ pos | map(attribute='fund_id') | join(', ') | safe }}]) {
+        const td = document.getElementById(`td${p}`);
+        // Use the palette colors for each fund ID (works because the palette is defined above and the funds are in the highest contribution order desc)
+        if (cnt < palette.length) {
+            td.style.backgroundColor = palette[cnt];
+        }
+        cnt ++;
+    }
+</script>
 <details>
     <summary>Fund NAV refresh actions (click to unfold)</summary>
     <form method="post" action="/funds">
