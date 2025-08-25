@@ -269,7 +269,7 @@ class Fund:
         if include_dividends:
             dividends = self.get_dividends_between_dates(initial_date, final_date)
             sum_divs = sum([d['amount'] for d in dividends])
-            print (f"Sum divs = {sum_divs} for period {initial_date} to {final_date}")
+            #print (f"Sum divs = {sum_divs} for period {initial_date} to {final_date}")
             final_nav += sum_divs
 
         if initial_nav == 0 or not initial_nav:

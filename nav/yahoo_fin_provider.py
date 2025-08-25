@@ -50,7 +50,7 @@ class YahooFinProvider(NAVProvider):
             soup = BeautifulSoup(page_content, 'html.parser')
 
             #find the table of class table__2wv6
-            table = soup.find('table', class_='table__2wv6')
+            table = soup.find('table', class_='table__26JH')
             if table:
                 tbody = table.find('tbody')
                 rows = tbody.find_all('tr')
