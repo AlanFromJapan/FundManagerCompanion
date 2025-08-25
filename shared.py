@@ -68,7 +68,7 @@ def import_latest_nav(fund):
             flash(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})", "error")
             return
         
-        flash(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}", "info")
+        flash(f"Latest NAV for fund {fund.fund_id} ({fund.name}): Date: {date}, Price: {price}", "success")
 
         _save_nav(fund, date, price)
     else:
@@ -91,7 +91,7 @@ def import_history_nav(fund):
             flash(f"Failed to fetch NAV for fund {fund.fund_id} ({fund.name})", "error")
             return
         
-        flash(f"Fetched {len(history_nav)} historical NAVs for fund {fund.fund_id} ({fund.name})", "info")
+        flash(f"Fetched {len(history_nav)} historical NAVs for fund {fund.fund_id} ({fund.name})", "success")
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
         
@@ -150,7 +150,7 @@ def import_whole_nav(fund):
         conn.close()
 
         print(f"Total NAV/Div processed: {cnt}/{cntd}")
-        flash(f"Imported {cnt} NAV & {cntd} Dividend records for fund {fund.fund_id} ({fund.name})", "info")
+        flash(f"Imported {cnt} NAV & {cntd} Dividend records for fund {fund.fund_id} ({fund.name})", "success")
     except Exception as e:
         print(f"Error importing whole NAV for fund {fund.fund_id} ({fund.name}): {e}")
         flash(f"Failed to import whole NAV for fund {fund.fund_id} ({fund.name}): see logs for details {e}", "error")

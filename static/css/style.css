@@ -128,3 +128,25 @@ table.two-column-layout > tbody > tr > td {
     visibility: visible;
     opacity: 1;
 }
+
+/* Flash messages */
+div.flash {
+    margin-bottom: 1em;
+    padding: 0.7em 1em;
+    border-radius: 5px;
+    background: #ffeeba;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+div.flash-success {
+    background: #1fc545;
+    color: black;
+    border: 1px solid #0b4619;
+}
+
+div.flash-error {
+    background: #f8d7da;
+    color: black;
+    border: 1px solid #531117;
+}
