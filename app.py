@@ -1,3 +1,5 @@
+
+
 from flask import Flask, render_template, request, send_from_directory
 from config import conf 
 
@@ -5,19 +7,23 @@ from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
 from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav
+
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
 from bp_transactions.transactions import bp_transactions
 from bp_holdings.holdings import bp_holdings
+from bp_newfund import bp_newfund
 
 app = Flask(__name__, static_url_path='')
 app.secret_key = conf['SECRET_KEY']
 
 #Register the blueprints
+
 app.register_blueprint(bp_fund_details)
 app.register_blueprint(bp_admin)
 app.register_blueprint(bp_transactions)
 app.register_blueprint(bp_holdings)
+app.register_blueprint(bp_newfund)
 
 
 @app.route('/favicon.ico')

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Register New Fund{% endblock %}
+
+{% block content %}
+<h1>Register New Fund</h1>
+<form method="post" action="/funds/register" class="register-fund-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <label for="currency">Currency:</label>
+    <input type="text" id="currency" name="currency" required maxlength="3" size="3" value="JPY">
+    <input type="submit" value="Register Fund">
+</form>
+{% endblock %}
