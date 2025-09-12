@@ -3,30 +3,41 @@ import sqlite3
 from config import conf
 
 bp_newfund = Blueprint('bp_newfund', __name__)
+
 @bp_newfund.route('/funds/register', methods=['GET'])
 def register_fund_form():
     return render_template('register_fund.html')
 
 @bp_newfund.route('/funds/register', methods=['POST'])
 def register_fund():
-    fund_id = 0
     name = request.form.get('name')
     currency = request.form.get('currency')
-    if not name or not currency:
-        flash('All fields are required to register a fund.', 'error')
-        return redirect(url_for('show_funds_page'))
+    if not name or not name.strip():
+        flash('Fund name cannot be empty.', 'error')
+        return redirect(url_for('bp_newfund.register_fund_form'))
+    if not currency:
+        flash('Currency is required to register a fund.', 'error')
+        return redirect(url_for('bp_newfund.register_fund_form'))
     try:
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
-        cur.execute('INSERT INTO FUND (Name, Currency) VALUES (?, ?)', (name, currency.upper()))
+        # Check if fund name already exists
+        cur.execute('SELECT FundID FROM FUND WHERE Name = ?', (name.strip(),))
+        if cur.fetchone():
+            flash(f'Fund name "{name}" already exists. Please choose a unique name.', 'error')
+            conn.close()
+            return redirect(url_for('bp_newfund.register_fund_form'))
+        # Insert new fund
+        cur.execute('INSERT INTO FUND (Name, Currency) VALUES (?, ?)', (name.strip(), currency.upper()))
         conn.commit()
 
         #check that the fund was properly inserted
-        cur.execute("SELECT FundID FROM FUND WHERE Name = ? AND Currency = ?", (name, currency.upper()))
+        cur.execute("SELECT FundID FROM FUND WHERE Name = ? AND Currency = ?", (name.strip(), currency.upper()))
         row = cur.fetchone()
         if row is None:
             flash(f'Error: Fund {name} was not inserted properly.', 'error')
-            return redirect(url_for('show_funds_page'))
+            conn.close()
+            return redirect(url_for('bp_newfund.register_fund_form'))
         else:
             fund_id = row[0]
 
