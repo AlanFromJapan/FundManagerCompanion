@@ -284,3 +284,31 @@ class Fund:
         if years <= 0 or initial_nav == 0 or not initial_nav:
             return 0.0
         return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
+    
+
+    @classmethod
+    def delete_fund(cls, fund_id: int) -> bool:
+        """
+        Deletes a fund and all its associated data from the database.
+        """
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        try:
+            # Delete associated FUND_CODE entries
+            cur.execute("DELETE FROM FUND_CODE WHERE FundID = ?", (fund_id,))
+            # Delete associated FUND_NAV entries
+            cur.execute("DELETE FROM FUND_NAV WHERE FundID = ?", (fund_id,))
+            # Delete associated DIVIDEND entries
+            cur.execute("DELETE FROM DIVIDEND WHERE FundID = ?", (fund_id,))
+            # Delete associated XACT entries
+            cur.execute("DELETE FROM XACT WHERE FundID = ?", (fund_id,))
+            # Finally, delete the fund itself
+            cur.execute("DELETE FROM FUND WHERE FundID = ?", (fund_id,))
+            
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting fund {fund_id}: {e}")
+            return False
+        finally:
+            conn.close()

@@ -164,8 +164,8 @@ def get_all_funds(forced_reload=False):
 
     conn = sqlite3.connect(conf['DB_PATH'])
     cur = conn.cursor()
-    
-    cur.execute('SELECT F.FundID, F.Name, F.Currency, P.Unit as LatestUnit, P.AtDate as LatestDate from FUND as F JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)')
+
+    cur.execute('SELECT F.FundID, F.Name, F.Currency, COALESCE(P.Unit, 0) as LatestUnit, COALESCE(P.AtDate, date("now")) as LatestDate from FUND as F LEFT OUTER JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)')
     rows = cur.fetchall()
 
     #ugly but not so many funs that it counts
