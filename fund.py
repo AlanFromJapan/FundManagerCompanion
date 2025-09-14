@@ -302,6 +302,8 @@ class Fund:
             cur.execute("DELETE FROM DIVIDEND WHERE FundID = ?", (fund_id,))
             # Delete associated XACT entries
             cur.execute("DELETE FROM XACT WHERE FundID = ?", (fund_id,))
+            # delete positions
+            cur.execute("DELETE FROM POSITION WHERE FundID = ?", (fund_id,))
             # Finally, delete the fund itself
             cur.execute("DELETE FROM FUND WHERE FundID = ?", (fund_id,))
             
