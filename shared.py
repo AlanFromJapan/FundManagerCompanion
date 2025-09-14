@@ -226,7 +226,7 @@ from
 	) as NAV_JAN1 ON NAV_JAN1.FundId = F.FundId
 WHERE
     1=1    
-    AND P.Unit > 0	
+    --AND P.Unit > 0	
                 
 """)
 
@@ -300,3 +300,15 @@ def get_holdings(fund_id: int = None, limit :int = 100):
         })
     conn.close()
     return pos
+
+
+
+def get_coding_systems():
+    ''' Get all distinct coding systems from FUND_CODE table '''
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    cur.execute("SELECT DISTINCT System FROM FUND_CODE")
+    rows = cur.fetchall()
+    conn.close()
+    return rows

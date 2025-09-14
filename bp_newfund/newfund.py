@@ -1,13 +1,17 @@
 from flask import Blueprint, request, flash, redirect, url_for, render_template
 import sqlite3
 from config import conf
+from shared import get_coding_systems
 
 bp_newfund = Blueprint('bp_newfund', __name__)
 
 @bp_newfund.route('/funds/register', methods=['GET'])
 def register_fund_form():
-    return render_template('register_fund.html')
+    codingsys = get_coding_systems()
 
+    return render_template('register_fund.html', coding_systems=codingsys)
+
+#For the POST method
 @bp_newfund.route('/funds/register', methods=['POST'])
 def register_fund():
     name = request.form.get('name')
@@ -18,9 +22,11 @@ def register_fund():
     if not currency:
         flash('Currency is required to register a fund.', 'error')
         return redirect(url_for('bp_newfund.register_fund_form'))
+    
+
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
     try:
-        conn = sqlite3.connect(conf['DB_PATH'])
-        cur = conn.cursor()
         # Check if fund name already exists
         cur.execute('SELECT FundID FROM FUND WHERE Name = ?', (name.strip(),))
         if cur.fetchone():
@@ -29,7 +35,6 @@ def register_fund():
             return redirect(url_for('bp_newfund.register_fund_form'))
         # Insert new fund
         cur.execute('INSERT INTO FUND (Name, Currency) VALUES (?, ?)', (name.strip(), currency.upper()))
-        conn.commit()
 
         #check that the fund was properly inserted
         cur.execute("SELECT FundID FROM FUND WHERE Name = ? AND Currency = ?", (name.strip(), currency.upper()))
@@ -41,8 +46,20 @@ def register_fund():
         else:
             fund_id = row[0]
 
-        conn.close()
+        #register the coding system if provided
+        codingsys = get_coding_systems()
+        for code in codingsys:
+            code_value = request.form.get(f'coding_system_{code[0]}')
+            if code_value:
+                cur.execute('INSERT INTO FUND_CODE (FundID, System, Code) VALUES (?, ?, ?)', (fund_id, code[0], code_value.strip()))
+
+        #ZA final commit
+        conn.commit()
+
         flash(f'Fund {name} (ID: {fund_id}) registered successfully.', 'success')
     except Exception as e:
         flash(f'Error registering fund: {e}', 'error')
+    finally:
+        conn.close()
+
     return redirect(url_for('show_funds_page'))

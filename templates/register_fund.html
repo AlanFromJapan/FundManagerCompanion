@@ -9,6 +9,22 @@
     <input type="text" id="name" name="name" required>
     <label for="currency">Currency:</label>
     <input type="text" id="currency" name="currency" required maxlength="3" size="3" value="JPY">
+
+    <label for="coding_system">Coding System:</label>
+
+    <table>
+        <tr>
+            <th>Coding System</th>
+            <th>Value</th>
+        </tr>
+        {% for code in coding_systems %}
+        <tr>
+            <td>{{ code[0] }}</td>
+            <td><input type="text" name="coding_system_{{ code[0] }}" value=""></td>
+        </tr>
+        {% endfor %}
+    </table>
+
     <input type="submit" value="Register Fund">
 </form>
 {% endblock %}
