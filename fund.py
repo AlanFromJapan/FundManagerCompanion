@@ -294,16 +294,21 @@ class Fund:
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
         try:
+
+            # Forbidd myself to corrupt the database by deleting a fund that still has transactions
+            cur.execute("SELECT * FROM XACT WHERE FundID = ? LIMIT 1", (fund_id,))
+            if cur.fetchone() is not None:
+                print(f"Cannot delete fund {fund_id} because it still has transactions.")
+                return False
+
+            # Looks ok to delete...
             # Delete associated FUND_CODE entries
             cur.execute("DELETE FROM FUND_CODE WHERE FundID = ?", (fund_id,))
             # Delete associated FUND_NAV entries
             cur.execute("DELETE FROM FUND_NAV WHERE FundID = ?", (fund_id,))
             # Delete associated DIVIDEND entries
             cur.execute("DELETE FROM DIVIDEND WHERE FundID = ?", (fund_id,))
-            # Delete associated XACT entries
-            cur.execute("DELETE FROM XACT WHERE FundID = ?", (fund_id,))
-            # delete positions
-            cur.execute("DELETE FROM POSITION WHERE FundID = ?", (fund_id,))
+
             # Finally, delete the fund itself
             cur.execute("DELETE FROM FUND WHERE FundID = ?", (fund_id,))
             
