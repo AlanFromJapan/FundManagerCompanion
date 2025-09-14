@@ -19,8 +19,23 @@
     <input type="text" id="riskFreeRate" name="riskFreeRate" placeholder="Enter risk free rate (>0)" value="{{ conf.risk_free_rate }}" />
 </div>
 
+
 <div class="visual-frame">
-    <h2>REAL DANGEROUS THINGS</h2>
+    <h2>Global Actions</h2>
+    <p>Relatively safe actions</p>
+    <table>
+        <tr>
+            <td><p>Make a copy of the database file in the same directory:</p></td>
+            <td><input type="submit" name="submit_button" value="Backup database" /></td>
+        </tr>
+    </table>
+    
+    
+</div>
+
+
+<div class="visual-frame">
+    <h2>⛔☠️☠️ REAL DANGEROUS THINGS ☠️☠️⛔</h2>
     <p>Think twice before clicking.</p>
     <label for="deleteFund">Select Fund to Delete:</label>
     <select id="deleteFund" name="deleteFund">
@@ -28,14 +43,14 @@
             <option value="{{ fund.fund_id }}">{{ fund.name }}</option>
         {% endfor %}
     </select>
-
+    ⚠️
     <input 
     type="submit" 
     name="submit_button" 
     onClick="clickConfirm('action_delete', 
         document.getElementById('deleteFund').value, 
         'Are you sure you want to delete this fund ['+document.getElementById('deleteFund').options[document.getElementById('deleteFund').selectedIndex].text+'] ?');" 
-    value="Delete fund">Delete fund</input>
+    value="Delete fund"></input>
 </div>
 
 </form>

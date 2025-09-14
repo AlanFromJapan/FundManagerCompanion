@@ -32,6 +32,17 @@ def admin_page():
                     flash(f'Failed to delete fund with ID {fund_id}.', 'error')
             else:
                 flash('No fund ID provided for deletion.', 'error')
+        elif request.form.get("submit_button", "?") == "Backup database":
+            # Handle form submission FOR BACKUP DATABASE
+            backup_filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+            try:
+                import shutil
+                import os
+                backup_fullpath = os.path.join(os.path.dirname(conf['DB_PATH']), backup_filename)
+                shutil.copyfile(conf['DB_PATH'], backup_fullpath)
+                flash(f'Database backed up successfully as {backup_filename}.', 'success')
+            except Exception as e:
+                flash(f'Failed to back up database: {e}', 'error')
         else:
             flash('Unknown action.', 'error')
 
