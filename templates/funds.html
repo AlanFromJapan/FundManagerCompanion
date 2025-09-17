@@ -56,7 +56,7 @@
         <tr>
             <th>FundID</th>
             <th>Name</th>
-            <th>Currency</th>
+            <th>% of portfolio</th>
             <th>Current shares</th>
             <th>Current amount</th>
             <th>Latest NAV</th>
@@ -66,15 +66,17 @@
             </th>
         </tr>
     {% for p in pos %}
+    {% set impact_threshold = 10 %}
+    {% set ytd_warning_threshold = 3 %}
     <tr>
         <td id="td{{ p['fund_id'] }}">{{ p["fund_id"] }}</td>
-        <td><a href="/funds/{{ p['fund_id'] }}">{{ p["name"] }}</a></td>
-        <td>{{ p["currency"] }}</td>
+        <td class="{{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}"><a href="/funds/{{ p['fund_id'] }}">{{ p["name"] }}</a></td>
+        <td class="rightalign {{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}">{{ "{:,.0f}%".format(p["portfolio_holding_contrib_pct"]) }}</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"]) }}</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
         <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
-        <td class="rightalign {{ 'stat_positive' if p['ytd_total_return'] > 0 else 'stat_negative' }}">{{ "{:+,.2f}%".format(p["ytd_total_return"]) }}</td>
+        <td class="rightalign {{ 'stat_positive' if p['ytd_total_return'] > ytd_warning_threshold else 'stat_negative' if p['ytd_total_return'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["ytd_total_return"]) }}</td>
     </tr>
     {% endfor %}
 </table>

@@ -39,6 +39,14 @@ input[type="submit"] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.733);
 }
 
+/* Text styles */ 
+
+.impact { font-weight: bold;  }
+.highimpact { font-weight: bold; color: darkred; }
+.note { font-style: italic; color: #555; }
+.small { font-size: 0.9em; color: #777; }
+
+
 /* Table styles */
 table { border-collapse: collapse; width: 100%; margin-top: 1em; }
 th, td { border: 1px solid #888; padding: 8px 12px; text-align: left; }
