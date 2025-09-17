@@ -29,7 +29,7 @@
         </td>
         <td>
             <ul>
-                <li><a href="https://fund.monex.co.jp/detail/{{fund.codes['yahoo_finance']}}" target="_blank">MONEX site</a></li>
+                <li><a href="https://fund.monex.co.jp/detail/{{fund.codes['monex'] if 'monex' in fund.codes else fund.codes['yahoo_finance']}}" target="_blank">MONEX site</a></li>
                 <li><a href="https://finance.yahoo.co.jp/quote/{{fund.codes['yahoo_finance']}}" target="_blank">Yahoo Finance</a></li>
                 <li><a href="https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd={{fund.codes['ISIN']}}" target="_blank">Toushin Lib （投資信託協会）</a></li>
             </ul>
