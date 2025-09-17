@@ -1,7 +1,7 @@
 from flask import Blueprint, request, flash, redirect, url_for, render_template
 import sqlite3
 from config import conf
-from shared import get_coding_systems
+from shared import get_coding_systems, get_all_funds
 
 bp_newfund = Blueprint('bp_newfund', __name__)
 
@@ -61,5 +61,7 @@ def register_fund():
         flash(f'Error registering fund: {e}', 'error')
     finally:
         conn.close()
+
+    get_all_funds(forced_reload=True)  # Refresh fund list cache
 
     return redirect(url_for('show_funds_page'))
