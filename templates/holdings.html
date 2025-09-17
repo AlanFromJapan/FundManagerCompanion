@@ -3,6 +3,15 @@
 {% block title %}Holdings{% endblock %}
 
 {% block content %}
+
+<div class="visual-frame">
+<form method="post" action="/holdings/rerun_position" style="margin-bottom: 1em;">
+    <input type="checkbox" id="enable_start_date" name="enable_start_date" onclick="document.getElementById('start_date').disabled = !this.checked;">
+    <label for="enable_start_date">Force start date for recalculation</label>
+    <input type="date" id="start_date" name="start_date" disabled>
+    <input type="submit" value="Recalculate Positions">
+</form>
+</div>
 <h1>Holdings</h1>
 
 {% if pos %}
