@@ -48,6 +48,9 @@ def show_funds_page():
     #sort positions ascending by maximum calculated position value
     pos.sort(key=lambda x: x["latest_unit"] * x["latest_nav"], reverse=True)
 
+    #ignore positions with zero qty
+    pos = [p for p in pos if p["latest_unit"]  > 0]
+
     #POST BACK POST BACK POST BACK
     if request.method == 'POST':
         if 'update_nav' in request.form:
