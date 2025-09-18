@@ -47,7 +47,7 @@
                     }, 
                     plugins: [
                         {
-                            afterDraw: function(chart) {
+                            beforeDraw: function(chart) {
                                 var ctx = chart.chart.ctx;
                                 ctx.save();
                                 var image = new Image();      
