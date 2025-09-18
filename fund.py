@@ -3,6 +3,9 @@ import sqlite3
 from config import conf
 from enum import Enum
 
+from cachetools import cached, TTLCache
+
+cache = TTLCache(maxsize=100, ttl=10)
 
 class TransactionType(Enum):
     BUY = "お買付"
@@ -223,6 +226,7 @@ class Fund:
 
 
     @property
+    @cached(cache)
     def stats(self) -> dict:
         """
         Get the statistics panel data.
@@ -252,8 +256,37 @@ class Fund:
             "excess_return_1y": self.stats_nav_return(one_year_ago, None, conf.risk_free_rate, include_dividends=True),
             "excess_return_3y": self.stats_nav_return(three_years_ago, None, conf.risk_free_rate * 3, include_dividends=True),
 
+            "invested_amount": self.stats_invested_amount(),
+            "total_units": self.stats_total_units(),
+            "current_value": (self.stats_total_units() * self.latest_nav / 10000) if self.latest_nav else 0.0,
+            "unrealized_pnl": ((self.stats_total_units() * self.latest_nav / 10000) - self.stats_invested_amount()) if self.latest_nav else 0.0,
         }
 
+    def stats_total_units(self):
+        """
+        Calculate the total units held based on transactions.
+        """
+        total_units = 0.0
+        for x in self.transactions:
+            if x['xtype'] in {TransactionType.BUY, TransactionType.DIVIDEND_REINVEST}:
+                total_units += x['unit']
+            elif x['xtype'] == TransactionType.SELL:
+                total_units -= x['unit']
+        return total_units
+    
+
+    def stats_invested_amount(self):
+        """
+        Calculate the total invested amount based on transactions.
+        """
+        total_invested = 0.0
+        for x in self.transactions:
+            if x['xtype'] in {TransactionType.BUY, TransactionType.DIVIDEND_REINVEST}:
+                total_invested += x['amount']
+            elif x['xtype'] == TransactionType.SELL:
+                total_invested -= x['amount']
+        return total_invested
+    
 
     def stats_nav_return(self, initial_date, final_date, risk_free_rate=0.0, include_dividends=False):
         """

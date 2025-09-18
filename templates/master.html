@@ -38,9 +38,9 @@
                     <td>{{ item.trade_date }}</td>
                     <td>{{ item.xtype.to_emoji() }} {{ item.xtype.to_short() }}</td>
                     <td class="rightalign">{{ "{:,.0f}".format(item.unit) }}</td>
-                    <td class="rightalign">{{ "{:,.0f}".format(item.amount) }}円</td>
-                    <td class="rightalign">{{ "{:,.0f}".format(item.unit_price) }}円</td>
-                    <td class="rightalign {{ 'stat_positive' if item.last_nav_pnl > 0 else 'stat_negative' }}">{{ "{:,.0f}".format(item.last_nav_pnl) }}円</td>
+                    <td class="rightalign unbreakable">{{ "{:,.0f}".format(item.amount) }}円</td>
+                    <td class="rightalign unbreakable">{{ "{:,.0f}".format(item.unit_price) }}円</td>
+                    <td class="rightalign unbreakable {{ 'stat_positive' if item.last_nav_pnl > 0 else 'stat_negative' }}">{{ "{:,.0f}".format(item.last_nav_pnl) }}円</td>
                 </tr>
                 {% endfor %}
             </tbody>

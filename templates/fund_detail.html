@@ -81,7 +81,7 @@
 
         </td>
         <td>
-            <!-- ==================================== RIGHT SIDE ==================================== -->
+            <!-- ==================================== RIGHT SIDE (dividends) ==================================== -->
         
             {% if fund.dividends %}
             <table class="scrollable" style="max-height: 200px;">
@@ -99,6 +99,11 @@
             {% else %}
                 No dividends data available.
             {% endif %}
+
+            <!-- info -->
+            <div class="visual-frame note small" style="margin-top: 1em;">
+                Calculations are based on latest date NAV available date-to-date. Monex, Yahoo, etc. present data as of <span class="impact">last business day of previous month</span>, hence the discrepancies.
+            </div>
         </td>
     </tr>
 </table>
@@ -221,6 +226,30 @@
     No transactions available.
 {% endif %}
 
+<h3>My investment analysis</h3>
+<table>
+    <tr>
+        <th>Invested sum</th>
+        <td colspan="2" class="rightalign unbreakable">{{ "{:,.0f}".format(fund.stats["invested_amount"]) }}円</td>
+    </tr>
+    <tr>
+        <th>Market value (last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }})</th>
+        <td colspan="2" class="rightalign unbreakable">{{ "{:,.0f}".format(fund.stats["current_value"]) }}円</td>
+    </tr>
+    <tr>
+        <th>Unrealized P/L</th>
+        <td colspan="2" class="rightalign unbreakable {{'stat_positive' if fund.stats['unrealized_pnl'] > 0 else 'stat_negative' }}">{{ "{:,.0f}".format(fund.stats["unrealized_pnl"]) }}円</td>
+    </tr>
+    <tr>
+        <th>Unrealized P/L %</th>
+        <td class="rightalign unbreakable {{'stat_positive' if fund.stats['unrealized_pnl'] > 0 else 'stat_negative' }}">{{ "{:,.2f}".format(100.0 * fund.stats["unrealized_pnl"] / (fund.stats["invested_amount"]) if fund.stats["invested_amount"] else 0.0) }} %</td>
+        <td style="width:48px;">{{ "👍❤️" if fund.stats["unrealized_pnl"] > 0 else "👎💀" }}</td>
+    </tr>
+    <tr>
+        <th>Total units</th>
+        <td colspan="2" class="rightalign">{{ "{:,.0f}".format(fund.stats["total_units"]) }}</td>
+    </tr>
+</table>
 {% endblock %}
 
     
