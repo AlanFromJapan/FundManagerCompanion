@@ -44,7 +44,20 @@
                                 },
                             }
                         }
-                    }
+                    }, 
+                    plugins: [
+                        {
+                            afterDraw: function(chart) {
+                                var ctx = chart.chart.ctx;
+                                ctx.save();
+                                var image = new Image();      
+                                image.src = '/favicon.png';      
+                                imageSize = 64;
+                                ctx.drawImage(image, chart.chart.width / 2 - imageSize / 2, chart.chart.height / 2 - imageSize / 2, imageSize, imageSize);
+                                ctx.restore();
+                            }
+                        }
+                    ]
                 });
                 </script>
             </td>
@@ -72,7 +85,7 @@
     {% set impact_threshold = 10 %}
     {% set ytd_warning_threshold = 3 %}
     <tr>
-        <td id="td{{ p['fund_id'] }}">{{ p["fund_id"] }}</td>
+        <td id="td{{ p['fund_id'] }}" class="fund_header">{{ p["fund_id"] }}</td>
         <td class="{{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}"><a href="/funds/{{ p['fund_id'] }}">{{ p["name"] }}</a></td>
         <td class="rightalign {{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}">{{ "{:,.0f}%".format(p["portfolio_holding_contrib_pct"]) }}</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"]) }}</td>

@@ -68,6 +68,11 @@ td.date_header{
     text-align: left;
 }
 
+td.fund_header{
+    text-align: center;
+    color: black;
+}
+
 /* Screensplit table */
 table.screensplit {
     width: 100%;
