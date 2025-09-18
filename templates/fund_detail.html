@@ -9,12 +9,14 @@
     <tr>
         <th>Fund UID</th>
         <td>{{ fund.fund_id }}</td>
-        <td>Last NAV={{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }} {{ fund.currency }} 
-            (<span class="{{ 'stat_positive' if fund.nav_diff[0].diffamt >= 0 else 'stat_negative' }}">{{ "{:+,.0f}".format(fund.nav_diff[0].diffamt) if fund.nav_diff else "n/a" }}</span>)</td>
+        <th>Latest NAV</td>
+        <td>{{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }} {{ fund.currency }} 
+            (<span class="{{ 'stat_positive' if fund.nav_diff[0].diffamt >= 0 else 'stat_negative' }}">{{ "{:+,.0f}".format(fund.nav_diff[0].diffamt) if fund.nav_diff else "n/a" }}</span>)
+        </td>
     </tr>
     <tr>
         <th>Name</th>
-        <td colspan="2">{{ fund.name }}</td>
+        <td colspan="3">{{ fund.name }}</td>
     </tr>
     <tr>
         <th>Codes</th>
@@ -29,7 +31,7 @@
                 No codes available
             {% endif %}
         </td>
-        <td>
+        <td colspan="2">
             <ul>
                 <li><a href="https://fund.monex.co.jp/detail/{{fund.codes['monex'] if 'monex' in fund.codes else fund.codes['yahoo_finance']}}" target="_blank">MONEX site</a></li>
                 <li><a href="https://finance.yahoo.co.jp/quote/{{fund.codes['yahoo_finance']}}" target="_blank">Yahoo Finance</a></li>
