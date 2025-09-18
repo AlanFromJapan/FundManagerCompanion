@@ -200,10 +200,13 @@ SELECT
     P.AtDate as LatestDateHolding, 
     NAVS.NAV as LatestNAV, 
     NAVS.AtDate as LatestDateNAV, 
-    NAV_JAN1.NAV as NAV_JAN1,
-	((NAVS.NAV - NAV_JAN1.NAV) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDPerf,
-	((NAVS.NAV - NAV_JAN1.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', 'start of year')), 0)) / NULLIF(NAV_JAN1.NAV, 0)) * 100.0 as YtDTotalReturn,
-    CAST((NAVS.NAV * P.Unit) /10000 as INTEGER) as LatestPosition
+    NAV_6M.NAV as NAV_6M,
+	((NAVS.NAV - NAV_6M.NAV) / NULLIF(NAV_6M.NAV, 0)) * 100.0 as Perf6M,
+	((NAVS.NAV - NAV_6M.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', '-6 months')), 0)) / NULLIF(NAV_6M.NAV, 0)) * 100.0 as TotalReturn6M,
+    CAST((NAVS.NAV * P.Unit) /10000 as INTEGER) as LatestPosition,
+	((NAVS.NAV - NAV_12M.NAV) / NULLIF(NAV_12M.NAV, 0)) * 100.0 as Perf12M,
+	((NAVS.NAV - NAV_12M.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', '-12 months')), 0)) / NULLIF(NAV_12M.NAV, 0)) * 100.0 as TotalReturn12M
+                
 from 
     FUND as F 
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
@@ -221,9 +224,18 @@ from
     from FUND_NAV as N
     WHERE
     1=1
-	AND N.AtDate >= date('now', 'start of year')
+	AND N.AtDate >= date('now', '-6 months')
 	GROUP BY N.FundId
-	) as NAV_JAN1 ON NAV_JAN1.FundId = F.FundId
+	) as NAV_6M ON NAV_6M.FundId = F.FundId
+                
+	LEFT OUTER JOIN (
+    SELECT N.FundId, N.AtDate, N.NAV as NAV
+    from FUND_NAV as N
+    WHERE
+    1=1
+	AND N.AtDate >= date('now', '-12 months')
+	GROUP BY N.FundId
+	) as NAV_12M ON NAV_12M.FundId = F.FundId                
 WHERE
     1=1    
     --AND P.Unit > 0	
@@ -244,9 +256,11 @@ WHERE
         latest_nav = row[5]
         latest_date_nav = row[6]
         nav_jan1 = row[7]
-        ytd_perf = row[8]
-        ytd_total_return = row[9]
+        perf_6m = row[8]
+        total_return_6m = row[9]
         latest_position = row[10]
+        perf_12m = row[11]
+        total_return_12m = row[12]
 
         pos.append({
             'fund_id': fund_id,
@@ -257,10 +271,13 @@ WHERE
             'latest_nav': latest_nav,
             'latest_date_nav': latest_date_nav,
             'nav_jan1': nav_jan1,
-            'ytd_perf': ytd_perf,
-            'ytd_total_return': ytd_total_return,
+            'perf_6m': perf_6m,
+            'total_return_6m': total_return_6m,
             'latest_position': latest_position,
-            'portfolio_holding_contrib_pct': int(latest_position / total_holdings_amt * 100.0) if total_holdings_amt > 0 else 0
+            'portfolio_holding_contrib_pct': int(latest_position / total_holdings_amt * 100.0) if total_holdings_amt > 0 else 0,
+            'perf_12m': perf_12m,
+            'total_return_12m': total_return_12m,
+            'perf_evolution': perf_12m - perf_6m if perf_12m is not None and perf_6m is not None else 0.0
         })
         
     conn.close()

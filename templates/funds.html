@@ -61,8 +61,11 @@
             <th>Current amount</th>
             <th>Latest NAV</th>
             <th>Latest NAV Date</th>
-            <th class="tooltip">YtD Total Return%
-                <span class="tooltiptext">Year-to-Date Total Return Percentage (NAV difference including received dividends)</span>
+            <th class="tooltip">6M Total Return%
+                <span class="tooltiptext">6 Months Total Return Percentage (NAV difference including received dividends)</span>
+            </th>
+            <th class="tooltip">1Y Total Return%
+                <span class="tooltiptext">1 Year Total Return Percentage (NAV difference including received dividends)</span>
             </th>
         </tr>
     {% for p in pos %}
@@ -76,7 +79,8 @@
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}</td>
         <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
-        <td class="rightalign {{ 'stat_positive' if p['ytd_total_return'] > ytd_warning_threshold else 'stat_negative' if p['ytd_total_return'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["ytd_total_return"]) }}</td>
+        <td class="rightalign unbreakable {{ 'stat_positive' if p['total_return_6m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_6m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_6m"]) }} {{ "🚀" if p['perf_evolution'] < 0 else ""  }}</td>
+        <td class="rightalign {{ 'stat_positive' if p['total_return_12m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_12m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_12m"]) }}</td>
     </tr>
     {% endfor %}
 </table>
