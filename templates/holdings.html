@@ -36,15 +36,21 @@
                 </tr>
             </thead>
             <tbody>
+
                 {% for holding in holdings %}
-                <tr>
-                    {% if options.show_fund %}
-                    <td>{{ holding.fund_id }}</td>
-                    {% endif %}
-                    <td>{{ holding.at_date }}</td>
-                    <td>{{ holding.unit }}</td>
-                    <td>{{ holding.amount }}</td>
-                </tr>
+
+                    {%- if loop.index == 1 or (loop.index > 0 and holdings[loop.index - 2].at_date != holding.at_date)  -%}
+                        <tr><td class="date_header" colspan="{{ 4 if options.show_fund else 3 }}">{{ holding.at_date }}</td></tr>
+                    {%- endif -%}
+                    <tr>
+                        {% if options.show_fund %}
+                        <td>[{{ holding.fund_id }}]&nbsp;{{ holding.fund_name }}</td>
+                        {% endif %}
+                        <td>{{ holding.at_date }}</td>
+                        <td>{{ "{:,.0f}".format(holding.unit) }}</td>
+                        <td>{{ "{:,.0f}".format(holding.amount) }}</td>
+                    </tr>
+
                 {% endfor %}
             </tbody>
         </table>

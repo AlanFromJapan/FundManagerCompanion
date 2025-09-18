@@ -299,9 +299,13 @@ def get_holdings(fund_id: int = None, limit :int = 100):
 
     cur.execute("""
     select 
-                P.* 
+                P.FundId, 
+                P.AtDate, 
+                P.Unit, 
+                P.Amount, 
+                F.Name as FundName
     from 
-                Position as P 
+                Position as P JOIN FUND as F ON P.FundID = F.FundID 
     WHERE 
                 1=1
                 AND (P.FundID = ? OR ? IS NULL)                
@@ -313,7 +317,8 @@ def get_holdings(fund_id: int = None, limit :int = 100):
             'fund_id': row[0],
             'at_date': row[1],
             'unit': row[2],
-            'amount': row[3]
+            'amount': row[3],
+            'fund_name': row[4]
         })
     conn.close()
     return pos
