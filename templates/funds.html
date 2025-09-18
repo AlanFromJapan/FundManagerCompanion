@@ -5,17 +5,18 @@
 {% block content %}
 <h1>Funds List ({{ pos | length }} funds)  </h1>
 
+<div class="visual-frame">
 <a href="/funds/register" class="button" style="margin-bottom: 1em; display: inline-block;">Register New Fund</a>
 
 <table class="screensplit">
     <tbody>
         <tr>
-            <td style="vertical-align: middle;">
+            <td style="vertical-align: middle; ">
                 <span class="total_positions">Total estimated position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span>
             </td>
 
-            <td>
-                <canvas id="fundsDonutChart" width="500" height="200"></canvas>
+            <td style="width:300px;">
+                <canvas id="fundsDonutChart" width="300" height="200"></canvas>
                 <script>
                     //OceanBreeze palette from Coolors (thank you!)
                 const palette = ['#03045E', '#0077B6', '#00B4D8', '#90E0EF', '#CAF0F8'];
@@ -64,7 +65,9 @@
         </tr>
     </tbody>
 </table>
+</div>
 
+<!-- ------------------------------------------------------ Fund Table ------------------------------------------------------ -->
 <table>
         <tr>
             <th>FundID</th>
