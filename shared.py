@@ -346,7 +346,7 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
 
         exec_date = start_date
         if not start_date:
-            cur.execute("SELECT AtDate, * FROM POSITION ORDER BY AtDate DESC LIMIT 1")
+            cur.execute("SELECT AtDate, * FROM POSITION WHERE (FundId = ? OR ? IS NULL) ORDER BY AtDate DESC LIMIT 1", (fund_id, fund_id))
             row = cur.fetchone()
             exec_date = row[0]        
             #make it a datetime object
@@ -358,7 +358,7 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
 
         cnt = 0
         #get all the NEW transactions
-        cur.execute("SELECT * FROM XACT WHERE ExecutionDate > ? ORDER BY ExecutionDate ASC", (exec_date.strftime('%Y-%m-%d'),))
+        cur.execute("SELECT * FROM XACT WHERE ExecutionDate > ? AND (FundId = ? OR ? IS NULL) ORDER BY ExecutionDate ASC", (exec_date.strftime('%Y-%m-%d'), fund_id, fund_id))
         xacts = cur.fetchall()
 
 
@@ -368,8 +368,8 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
             # copy the previous day's positions
             cur.execute(
                 '''INSERT OR REPLACE INTO "POSITION" (FundID, AtDate, Unit, Amount) 
-                SELECT FundID, ?, Unit, Amount FROM POSITION WHERE AtDate = ?''',
-                (d.strftime('%Y-%m-%d'), (d - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))
+                SELECT FundID, ?, Unit, Amount FROM POSITION WHERE AtDate = ? AND (FundId = ? OR ? IS NULL)''',
+                (d.strftime('%Y-%m-%d'), (d - datetime.timedelta(days=1)).strftime('%Y-%m-%d'), fund_id, fund_id)
             )
 
             #print(f"▶Processing positions for date: {d.strftime('%Y-%m-%d')} len(xacts)={len(xacts)}")

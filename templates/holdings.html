@@ -4,14 +4,38 @@
 
 {% block content %}
 
+<details>
+    <summary>Holdings actions (click to unfold)</summary>
 <div class="visual-frame">
 <form method="post" action="/holdings/rerun_position" style="margin-bottom: 1em;">
-    <input type="checkbox" id="enable_start_date" name="enable_start_date" onclick="document.getElementById('start_date').disabled = !this.checked;">
-    <label for="enable_start_date">Force start date for recalculation</label>
-    <input type="date" id="start_date" name="start_date" disabled>
-    <input type="submit" value="Recalculate Positions">
+    <table class="noborder">
+        <tr>
+            <td>
+                <input type="checkbox" id="enable_start_date" name="enable_start_date" onclick="document.getElementById('start_date').disabled = !this.checked;">
+                <label for="enable_start_date">Force start date for recalculation</label>
+                <input type="date" id="start_date" name="start_date" disabled>                
+            </td>
+            <td rowspan="2">
+                <input type="submit" value="Recalculate Positions">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="fund_id">Select Fund</label>
+                <select name="fund_id" id="fund_id">
+                    <option value="-1">(All Funds)</option>
+                    {% for fund in funds %}
+                        <option value="{{ fund.fund_id }}">{{ fund.name }}</option>
+                    {% endfor %}
+                </select>
+            </td><!--td></td-->
+        </tr>
+    </table>
 </form>
 </div>
+</details>
+
+
 <h1>Holdings</h1>
 
 {% if pos %}
