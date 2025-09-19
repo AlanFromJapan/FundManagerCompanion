@@ -319,7 +319,8 @@ def get_holdings(fund_id: int = None, limit :int = 100):
             'at_date': row[1],
             'unit': row[2],
             'amount': row[3],
-            'fund_name': row[4]
+            'fund_name': row[4],
+            'nav': row[5]
         })
     conn.close()
     return pos
