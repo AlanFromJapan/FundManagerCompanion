@@ -1,22 +1,22 @@
 {% extends 'base2.html' %}
 
-{% block title %}Funds Detail{% endblock %}
+{% block title %}Funds Detail - {{ fund.name }}{% endblock %}
 
 {% block content_left %}
 <h2>Fund Details</h2>
 <h3>Overview 📜</h3>
 <table>
     <tr>
+        <th>Name</th>
+        <td colspan="3" class="impact big">{{ fund.name }}</td>
+    </tr>
+    <tr>
         <th>Fund UID</th>
         <td>{{ fund.fund_id }}</td>
-        <th>Latest NAV</td>
+        <th>Latest NAV</th>
         <td>{{ "{:,.0f}".format(fund.nav_sorted[0][1]) if fund.nav_sorted else "n/a" }} {{ fund.currency }} 
             (<span class="{{ 'stat_positive' if fund.nav_diff[0].diffamt >= 0 else 'stat_negative' }}">{{ "{:+,.0f}".format(fund.nav_diff[0].diffamt) if fund.nav_diff else "n/a" }}</span>)
         </td>
-    </tr>
-    <tr>
-        <th>Name</th>
-        <td colspan="3">{{ fund.name }}</td>
     </tr>
     <tr>
         <th>Codes</th>

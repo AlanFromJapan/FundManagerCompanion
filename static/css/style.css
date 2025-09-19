@@ -50,6 +50,7 @@ input[type="submit"] {
 .small { font-size: smaller; color: #777; }
 .unbreakable { white-space: nowrap; }
 .italic { font-style: italic; }
+.big { font-size: larger; }
 
 /* Table styles */
 table { border-collapse: collapse; width: 100%; margin-top: 1em; }
