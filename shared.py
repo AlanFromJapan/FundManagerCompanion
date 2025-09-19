@@ -32,7 +32,7 @@ def _save_nav(fund: Fund, date, price, cur: sqlite3.Cursor = None):
         local_cursor = True
 
     cur.execute("INSERT OR REPLACE INTO FUND_NAV (FundID, AtDate, NAV) VALUES (?, ?, ?)",
-                (fund.fund_id, date, price))  # Initialize with None values
+                (fund.fund_id, date.strftime('%Y-%m-%d'), price))  # Initialize with None values
 
     if local_cursor:
         conn.commit()
@@ -51,7 +51,7 @@ def _save_dividend(fund: Fund, date, amount, accounting_period, cur: sqlite3.Cur
         local_cursor = True
 
     cur.execute("INSERT OR REPLACE INTO DIVIDEND (FundID, AtDate, Amount, AccountingPeriod) VALUES (?, ?, ?, ?)",
-                (fund.fund_id, date, amount, accounting_period))  # Initialize with None values
+                (fund.fund_id, date.strftime('%Y-%m-%d'), amount, accounting_period))  # Initialize with None values
 
     if local_cursor:
         conn.commit()
@@ -303,7 +303,8 @@ def get_holdings(fund_id: int = None, limit :int = 100):
                 P.AtDate, 
                 P.Unit, 
                 P.Amount, 
-                F.Name as FundName
+                F.Name as FundName,
+				(SELECT N.NAV FROM FUND_NAV as N WHERE N.FundId = P.FundId AND N.AtDate <= P.AtDate ORDER BY N.AtDate DESC LIMIT 1) as NAV
     from 
                 Position as P JOIN FUND as F ON P.FundID = F.FundID 
     WHERE 
