@@ -37,6 +37,14 @@
 
 
 <h1>Holdings</h1>
+{% set selected_fund_id = request.args.get('fund_id') | int %}
+<select name="show_fund_id" id="show_fund_id" onchange="window.location.href='/holdings?fund_id=' + this.value;">
+    <option value="0">(All Funds)</option>
+    {% for fund in funds %}
+        <option value="{{ fund.fund_id }}" {{ 'selected' if fund.fund_id == selected_fund_id else '' }}>{{ fund.name }}</option>
+    {% endfor %}
+</select>
+<span class="note small">Showing 30 days of data only.</span>
 
 {% if pos %}
     {{ holdings_table(pos, {'show_fund': True}) }}
@@ -61,8 +69,10 @@
             </thead>
             <tbody>
 
-                {% for holding in holdings %}
+                {% set selected_fund_id = request.args.get('fund_id') | int %}
+                {% for holding in holdings if (holding.fund_id == selected_fund_id or selected_fund_id == 0) %}
 
+                    {# Insert a date header row when the date changes #}
                     {%- if loop.index == 1 or (loop.index > 0 and holdings[loop.index - 2].at_date != holding.at_date)  -%}
                         <tr><td class="date_header" colspan="{{ 4 if options.show_fund else 3 }}">{{ holding.at_date }}</td></tr>
                     {%- endif -%}

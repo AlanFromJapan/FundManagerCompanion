@@ -9,8 +9,8 @@ bp_holdings = Blueprint('bp_holdings', __name__)
 
 @bp_holdings.route('/holdings', methods=['GET', 'POST'])
 def holdings_page():
-    pos = get_holdings()
     funds = get_all_funds()
+    pos = get_holdings(limit=len(funds)* 30)
     return render_template('holdings.html', pos=pos, funds=funds)
 
 @bp_holdings.route('/holdings/rerun_position', methods=['POST'])
