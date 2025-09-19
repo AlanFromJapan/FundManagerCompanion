@@ -235,11 +235,11 @@
         <td colspan="2" class="rightalign unbreakable">{{ "{:,.0f}".format(fund.stats["current_value"]) }}円</td>
     </tr>
     <tr>
-        <th>Unrealized P/L</th>
+        <th>Unrealized PnL</th>
         <td colspan="2" class="rightalign unbreakable {{'stat_positive' if fund.stats['unrealized_pnl'] > 0 else 'stat_negative' }}">{{ "{:,.0f}".format(fund.stats["unrealized_pnl"]) }}円</td>
     </tr>
     <tr>
-        <th>Unrealized P/L %</th>
+        <th>Unrealized PnL %</th>
         <td class="rightalign unbreakable {{'stat_positive' if fund.stats['unrealized_pnl'] > 0 else 'stat_negative' }}">{{ "{:,.2f}".format(100.0 * fund.stats["unrealized_pnl"] / (fund.stats["invested_amount"]) if fund.stats["invested_amount"] else 0.0) }} %</td>
         <td style="width:48px;">{{ "👍❤️" if fund.stats["unrealized_pnl"] > 0 else "👎💀" }}</td>
     </tr>
