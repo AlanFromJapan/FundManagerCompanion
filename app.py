@@ -63,7 +63,7 @@ def show_funds_page():
             print("Updating whole NAV for all funds from Investment Trust Association")
             import_whole_nav(funds)
 
-    return render_template('funds.html', pos=pos, funds=funds, stats=stats)
+    return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf)
 
 
 

@@ -1,5 +1,6 @@
 from flask import  render_template, request, Blueprint
 from shared import get_all_funds, import_latest_nav, import_history_nav, import_whole_nav
+from config import conf
 
 bp_fund_details = Blueprint('bp_fund_details', __name__)
 
@@ -46,4 +47,4 @@ def show_fund_page(fund_id):
 
 
 
-    return render_template('fund_detail.html', fund=fund, chartData=(values, labels, MAX_NAV_LIMIT, MAX_NAV_SHOWN))
+    return render_template('fund_detail.html', fund=fund, chartData=(values, labels, MAX_NAV_LIMIT, MAX_NAV_SHOWN), conf=conf)

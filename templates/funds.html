@@ -84,7 +84,7 @@
         </tr>
     {% for p in pos %}
     {% set impact_threshold = 10 %}
-    {% set ytd_warning_threshold = 3 %}
+    {% set ytd_warning_threshold = 100 * conf.target_yearly_rate %}
     <tr>
         <td id="td{{ p['fund_id'] }}" class="fund_header {{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}"><a href="/funds/{{ p['fund_id'] }}">[{{ p["fund_id"] }}] {{ p["name"] }}</a></td>
         <td class="centeralign {{ 'impact' if p['portfolio_holding_contrib_pct'] >= impact_threshold else '' }}">{{ "{:,.0f}%".format(p["portfolio_holding_contrib_pct"]) }}</td>

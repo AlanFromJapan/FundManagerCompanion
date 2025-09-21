@@ -5,7 +5,9 @@ class Config(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        #don't forget to initialize these to None to avoid attribute errors and make sure values are loaded from DB BEFORE first access
         self.__risk_free_rate = None 
+        self.__target_yearly_rate = None 
 
 
     @property
@@ -41,7 +43,7 @@ class Config(dict):
 
         return self.__target_yearly_rate
     
-    
+
     @target_yearly_rate.setter
     def target_yearly_rate(self, value):
         value = float(value)
@@ -51,6 +53,8 @@ class Config(dict):
         self.set_DB_value('TargetYearlyRate', value)
         self.__target_yearly_rate = value
 
+
+    #------------- Database interaction methods -------------
 
     def get_DB_value(self, key, default=None):
         conn = sqlite3.connect(self['DB_PATH'])

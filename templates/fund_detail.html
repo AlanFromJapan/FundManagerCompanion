@@ -195,7 +195,7 @@
                 {% else %}
                     N/A
                 {% endif %}
-            <td class="{{ 'stat_positive' if fund.nav_diff[ni].diffpct > 3 else 'stat_negative' if fund.nav_diff[ni].diffpct < 0 else 'stat_warning' }}">
+            <td class="{{ 'stat_positive' if fund.nav_diff[ni].diffpct > conf.target_yearly_rate else 'stat_negative' if fund.nav_diff[ni].diffpct < 0 else 'stat_warning' }}">
                 {% if fund.nav_diff  and ni < fund.nav_diff|length %}
                     {{ "{:+,.2f}".format(fund.nav_diff[ni].diffpct) }}
                 {% else %}
