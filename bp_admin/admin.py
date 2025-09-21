@@ -14,7 +14,8 @@ def admin_page():
 
         if request.form.get("submit_button", "?") == "Save Settings":
             # Handle form submission FOR SAVE SETTINGS
-            conf.risk_free_rate = float(request.form.get('riskFreeRate', 0.03))
+            conf.risk_free_rate = float(request.form.get('riskFreeRate', 0.005))
+            conf.target_yearly_rate = float(request.form.get('targetYearlyRate', 0.03))
             flash('Settings saved successfully.', 'success')
 
         elif request.form.get("submit_button", "?") == "Delete fund":
