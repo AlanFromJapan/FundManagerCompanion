@@ -71,9 +71,15 @@ td.date_header{
     text-align: left;
 }
 
+table.funds_table {
+    border-collapse: collapse;
+    font-size: smaller;
+}
 td.fund_header{
     text-align: center;
     color: black;
+    width: 300px;
+    font-size: medium;
 }
 
 /* Screensplit table */
