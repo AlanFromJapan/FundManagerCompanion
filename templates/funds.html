@@ -83,6 +83,9 @@
             <th class="tooltip">1Y Total Return%
                 <span class="tooltiptext">1 Year Total Return Percentage (NAV difference including received dividends)</span>
             </th>
+            <th class="tooltip">Daily Change NAV
+                <span class="tooltiptext">Change in NAV from the previous trading day</span>
+            </th>
         </tr>
     {% for p in pos %}
     {% set impact_threshold = 10 %}
@@ -97,6 +100,7 @@
         <td class="rightalign">{{ p["latest_date_nav"][:10] }}</td>
         <td class="rightalign unbreakable {{ 'stat_positive' if p['total_return_6m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_6m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_6m"]) }} {{ "🚀" if p['perf_evolution'] < 0 else ""  }}</td>
         <td class="rightalign {{ 'stat_positive' if p['total_return_12m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_12m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_12m"]) }}</td>
+        <td class="rightalign {{ 'stat_positive' if p['daily_change_nav'] > 0 else 'stat_negative' if p['daily_change_nav'] < 0 else '' }}">{{ "{:+,.0f}".format(p['daily_change_nav']) }}</td>
     </tr>
     {% endfor %}
 </table>
