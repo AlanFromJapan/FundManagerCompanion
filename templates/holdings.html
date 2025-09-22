@@ -77,15 +77,18 @@
                     {%- if loop.index == 1 or (loop.index > 0 and holdings[loop.index - 2].at_date != holding.at_date)  -%}
                         <tr><td class="date_header" colspan="{{ 5 if options.show_fund else 4 }}">{{ holding.at_date }}</td></tr>
                     {%- endif -%}
+
+                    {%- if holding.unit > 0 -%}
                     <tr>
                         {% if options.show_fund %}
                         <td><a href="/funds/{{ holding.fund_id }}">[{{ holding.fund_id }}]</a>&nbsp;{{ holding.fund_name }}</td>
                         {% endif %}
                         <td>{{ holding.at_date }}</td>
-                        <td>{{ "{:,.0f}".format(holding.unit) }}</td>
-                        <td>{{ "{:,.0f}".format(holding.nav) if holding.nav is not none else "N/A" }}</td>
-                        <td>{{ "{:,.0f}".format(holding.amount) }} <i>vs {{ "{:,.0f}".format((holding.unit * holding.nav) // 10000) if holding.nav is not none else "N/A" }}(calc)</i></td>
+                        <td class="rightalign">{{ "{:,.0f}".format(holding.unit) }}</td>
+                        <td class="rightalign">{{ "{:,.0f}".format(holding.nav) if holding.nav is not none else "N/A" }}</td>
+                        <td class="rightalign">{{ "{:,.0f}".format(holding.amount) }}</td>
                     </tr>
+                    {%- endif -%}
 
                 {% endfor %}
             </tbody>
