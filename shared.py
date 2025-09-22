@@ -435,3 +435,41 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
     except Exception as e:
         print("Error recalculating positions:", e)
         flash(f'Error recalculating positions: {e}', 'error')    
+
+
+
+def get_holdings_eom(fund_id: int = None, limit :int = 1000):
+    """ Get end-of-month holdings for a fund or all. """
+    pos = []
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    cur.execute("""
+SELECT 
+T.FundId,
+T.AtDate,
+T.Unit,
+T.Amount,
+T.Currency
+FROM (
+SELECT P.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY strftime('%Y-%m', AtDate), FundId
+            ORDER BY AtDate DESC
+        ) AS rn
+FROM POSITION as P
+WHERE (P.FundID = ? OR ? IS NULL)
+) as T
+WHERE rn = 1 
+ORDER BY T.AtDate ASC LIMIT ?""", (fund_id, fund_id, limit))
+
+    rows = cur.fetchall()
+    for row in rows:
+        pos.append({
+            'fund_id': row[0],
+            'at_date': row[1],
+            'unit': row[2],
+            'amount': row[3]
+        })
+    conn.close()
+    return pos
