@@ -35,6 +35,18 @@
 </div>
 </details>
 
+<script lang="javascript">
+    //Isn't Javascript fun?
+    //Set the default date to one week ago
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(today.getDate() - 7);
+    const yyyy = oneWeekAgo.getFullYear();
+    const mm = String(oneWeekAgo.getMonth() + 1).padStart(2, '0');
+    const dd = String(oneWeekAgo.getDate()).padStart(2, '0');
+    const formatted = `${yyyy}-${mm}-${dd}`; // 'YYYY-MM-DD' format for <input type="date">
+    document.getElementById('start_date').value = formatted;
+</script>
 
 <h1>Holdings</h1>
 {% set selected_fund_id = request.args.get('fund_id') | int %}
