@@ -20,7 +20,7 @@ def rerun_position():
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
 
     fund_id = request.form.get('fund_id', "-1") # -1 means all funds
-    fund_id = int(fund_id) if fund_id and fund_id != -1 else None
+    fund_id = int(fund_id) if fund_id and fund_id != "-1" else None
     
     print(f"Rerunning position from {start_date} for fund_id={fund_id}")
 
