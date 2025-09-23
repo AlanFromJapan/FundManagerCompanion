@@ -118,9 +118,10 @@
 </div>
 
 <!-- ------------------------------------------------------ Fund Table ------------------------------------------------------ -->
-<table class="funds_table">
+
+<table class="funds_table" id="funds_table">
         <tr>
-            <th>Name</th>
+            <th>Name <button onclick="selectTable()">Select Table</button><button onclick="copyPrompt()">Prompt</button></th>
             <th>%</th>
             <th>Current shares</th>
             <th>Current amount</th>
@@ -173,6 +174,30 @@
         <input type="submit" value="Update ALL funds WHOLE NAV from Investment Trust Association">
     </form>
 </details>
+
+
+<script>
+function selectTable() {
+  const table = document.querySelector('#funds_table');
+  if (window.getSelection && document.createRange) {
+    const range = document.createRange();
+    range.selectNode(table);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}
+
+function copyPrompt(){
+    let promptText = "Below is a table with the name of the funds I invested in. Ignore the number between brackets in the name. Second column is the percentage of the whole portfolio. What can you tell me about my investment, and what would be your next suggestion of investment?";
+
+    navigator.clipboard.writeText(promptText).then(function() {
+        alert('Prompt copied to clipboard!');
+    }, function(err) {
+        alert('Could not copy text: ', err);
+    });
+}
+</script>
 {% endblock %}
 
     
