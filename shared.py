@@ -206,8 +206,14 @@ SELECT
     CAST((NAVS.NAV * P.Unit) /10000 as INTEGER) as LatestPosition,
 	((NAVS.NAV - NAV_12M.NAV) / NULLIF(NAV_12M.NAV, 0)) * 100.0 as Perf12M,
 	((NAVS.NAV - NAV_12M.NAV + COALESCE((SELECT SUM(D.Amount) from DIVIDEND as D WHERE D.FundID = F.FundID AND D.AtDate >= date('now', '-12 months')), 0)) / NULLIF(NAV_12M.NAV, 0)) * 100.0 as TotalReturn12M,
-    NAV_PREVDAY.NAV as SecondLatestNAV,
-	NAVS.NAV - NAV_PREVDAY.NAV as DailyChangeNAV
+	
+	COALESCE((SELECT NAV_PREVDAY.NAV 
+	FROM 
+		FUND_NAV as NAV_PREVDAY 
+	WHERE 
+		NAV_PREVDAY.FundId = F.FundId 
+		AND NAV_PREVDAY.AtDate < NAVS.AtDate
+	ORDER BY NAV_PREVDAY.AtDate DESC LIMIT 1), 0) as SecondLatestNAV
 from 
     FUND as F 
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
@@ -238,7 +244,7 @@ from
 	GROUP BY N.FundId
 	) as NAV_12M ON NAV_12M.FundId = F.FundId        
 
-    LEFT OUTER JOIN FUND_NAV as NAV_PREVDAY ON NAV_PREVDAY.FundId = F.FundId AND NAV_PREVDAY.AtDate = date(NAVS.AtDate, '-1 day')        
+	
 WHERE
     1=1    
     --AND P.Unit > 0	
@@ -264,7 +270,7 @@ WHERE
         latest_position = row[10]
         perf_12m = row[11]
         total_return_12m = row[12]
-        DailyChangeNAV = row[14]
+        second_latest_nav = row[13]
 
         pos.append({
             'fund_id': fund_id,
@@ -282,7 +288,7 @@ WHERE
             'perf_12m': perf_12m,
             'total_return_12m': total_return_12m,
             'perf_evolution': perf_12m - perf_6m if perf_12m is not None and perf_6m is not None else 0.0,
-            'daily_change_nav': DailyChangeNAV
+            'daily_change_nav': latest_nav - second_latest_nav if latest_nav is not None and second_latest_nav is not None else 0.0,
         })
         
     conn.close()
