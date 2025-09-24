@@ -29,7 +29,7 @@
                     const eomChart = new Chart(ctx2, {
                         type: 'bar',
                         data: {
-                            labels: [{% for i in eom %}"{{ i.month }}",{% endfor %} ],
+                            labels: [{% for i in inv %}"{{ i.month }}",{% endfor %} ],
                             datasets: [{
                                 label: 'Total Holdings (JPY)',
                                 data: [{% for i in eom %}{{ i.monthly_amount }},{% endfor %}],
@@ -40,8 +40,8 @@
                             {
                                 label: 'Total Investments (JPY)',
                                 data: [{% for i in inv %}{{ i.running_investment }},{% endfor %}],
-                                backgroundColor: 'rgba(40, 167, 69, 0.5)',
-                                borderColor: 'rgba(40, 167, 69, 1)',
+                                backgroundColor: 'goldenrod',
+                                borderColor: 'darkgoldenrod',
                                 borderWidth: 1
                             }]
                         },
@@ -58,18 +58,20 @@
                                 }
                             },
                             scales: {
-                                x: {
+                                xAxes: [{
                                     stacked: false, //overlay instead of stacked
-                                },
-                                yAxis: {
-                                    beginAtZero: true,
+                                }],
+                                yAxes: [{
+                                    
                                     ticks: {
+                                    
+                                        beginAtZero: true,
                                         // Include a thousands separator in the ticks
                                         callback: function(value, index, values) {
                                             return value.toLocaleString() ;
                                         }
                                     }
-                                }
+                                }]
                             }
                         }
                     });
