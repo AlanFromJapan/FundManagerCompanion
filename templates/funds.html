@@ -135,7 +135,7 @@
 
 <table class="funds_table" id="funds_table">
         <tr>
-            <th>Name <button onclick="selectTable()">Select Table</button><button onclick="copyPrompt()">Prompt</button></th>
+            <th>Name <button onclick="selectTable()"><img src="images/document-copy.png" width="24"/> Select Table</button><button onclick="copyPrompt()"><img src="images/ChatGPT-Logo.png" width="24"/> Prompt</button></th>
             <th>%</th>
             <th>Current shares</th>
             <th>Current amount</th>
@@ -204,6 +204,16 @@ function selectTable() {
 
 function copyPrompt(){
     let promptText = "Below is a table with the name of the funds I invested in. Ignore the number between brackets in the name. Second column is the percentage of the whole portfolio. What can you tell me about my investment, and what would be your next suggestion of investment?";
+
+    const table = document.querySelector('#funds_table');  
+    promptText += "\n\n";
+
+    for (let i = 1; i < table.rows.length; i++) {  // start at 1, skip header row
+        const row = table.rows[i];
+        const firstTwoCells = Array.from(row.cells).slice(0, 2);
+        const cellTexts = firstTwoCells.map(cell => cell.textContent.trim());
+        promptText += cellTexts.join("\t") + "\n"; // tab separated
+    }
 
     navigator.clipboard.writeText(promptText).then(function() {
         alert('Prompt copied to clipboard!');
