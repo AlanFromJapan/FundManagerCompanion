@@ -467,7 +467,7 @@ FROM POSITION as P
 WHERE (P.FundID = ? OR ? IS NULL)
 ) as T
 WHERE rn = 1 
-ORDER BY T.AtDate ASC LIMIT ?""", (fund_id, fund_id, limit))
+ORDER BY T.AtDate ASC """, (fund_id, fund_id, ))
 
     rows = cur.fetchall()
     for row in rows:
@@ -478,4 +478,71 @@ ORDER BY T.AtDate ASC LIMIT ?""", (fund_id, fund_id, limit))
             'amount': row[3]
         })
     conn.close()
-    return pos
+    return pos[-limit:]
+
+
+def get_investments_eom (fund_id: int = None, limit :int = 1000):
+    """ Get end-of-month investments (sum of buys) for a fund or all. """
+    inv = []
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    cur.execute("""
+WITH Monthly AS (
+	select 
+		strftime('%Y-%m', X.ExecutionDate) as Month, 
+		SUM(X.XactPrice * (CASE WHEN X.XactType ="解約" THEN -1 ELSE 1 END)) as MonthlyInvestment
+	FROM
+		XACT as X
+	WHERE	1=1
+		AND X.XactType NOT IN ("分配金")
+        AND (X.FundId = ? OR ? IS NULL)
+	GROUP BY strftime('%Y-%m', X.ExecutionDate)
+	ORDER BY Month ASC
+)
+SELECT 
+	Monthly.Month,
+	Monthly.MonthlyInvestment,
+	SUM(Monthly.MonthlyInvestment) OVER (ORDER BY Monthly.Month) as RunningInvestment
+FROM	
+	Monthly
+                """, (fund_id, fund_id))
+    
+    rows = cur.fetchall()
+    for row in rows:
+        inv.append({
+            'month': row[0],
+            'monthly_investment': row[1],
+            'running_investment': row[2]
+        })
+    conn.close()
+
+    #Expand: not every month may be present, fill in the gaps by copying last known value
+    if len(inv) > 0:
+        expanded_inv = []
+        start_date = datetime.datetime.strptime(inv[0]['month'] + '-01', '%Y-%m-%d')
+        end_date = datetime.datetime.today()
+        current_date = start_date
+        last_running_investment = 0
+
+        inv_dict = {item['month']: item for item in inv}
+
+        while current_date <= end_date:
+            month_str = current_date.strftime('%Y-%m')
+            if month_str in inv_dict:
+                last_running_investment = inv_dict[month_str]['running_investment']
+                expanded_inv.append(inv_dict[month_str])
+            else:
+                expanded_inv.append({
+                    'month': month_str,
+                    'monthly_investment': 0,
+                    'running_investment': last_running_investment
+                })
+            # Move to the first day of the next month
+            if current_date.month == 12:
+                current_date = current_date.replace(year=current_date.year + 1, month=1, day=1)
+            else:
+                current_date = current_date.replace(month=current_date.month + 1, day=1)
+
+        inv = expanded_inv
+    return inv[-limit:]

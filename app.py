@@ -6,7 +6,7 @@ from config import conf
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
-from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom
+from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom, get_investments_eom
 
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
@@ -38,9 +38,13 @@ def home_page():
 
 @app.route('/funds', methods=['GET','POST'])
 def show_funds_page():
+    eom_months_display = 1000  #how many months to display in the EOM chart
+
     pos = get_latest_positions()
     funds = get_all_funds()
-    eom = get_holdings_eom()
+
+    eom = get_holdings_eom(limit=eom_months_display)
+    inv_eom = get_investments_eom(limit=eom_months_display)
 
     #sum the end of month positions
     eom_sum = {}
@@ -70,7 +74,7 @@ def show_funds_page():
             print("Updating whole NAV for all funds from Investment Trust Association")
             import_whole_nav(funds)
 
-    return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf, eom=eom_sum)
+    return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf, eom=eom_sum, inv=inv_eom)
 
 
 

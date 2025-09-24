@@ -21,6 +21,7 @@
     <tbody>
         <tr>
             <td style="vertical-align: middle; ">
+                <!-- ********************************* Histogram holdings *********************************  -->
                 <h2>End-of-Month Holdings</h2>
                 <canvas id="fundsEOMHistogram" width="400" height="200"></canvas>
                 <script>
@@ -34,6 +35,13 @@
                                 data: [{% for amount in eom.values() %}{{ amount }},{% endfor %}],
                                 backgroundColor: 'rgba(0, 123, 255, 0.5)',
                                 borderColor: 'rgba(0, 123, 255, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Total Investments (JPY)',
+                                data: [{% for i in inv %}{{ i.running_investment }},{% endfor %}],
+                                backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                                borderColor: 'rgba(40, 167, 69, 1)',
                                 borderWidth: 1
                             }]
                         },
@@ -50,6 +58,9 @@
                                 }
                             },
                             scales: {
+                                x: {
+                                    stacked: false, //overlay instead of stacked
+                                },
                                 yAxis: {
                                     beginAtZero: true,
                                     ticks: {
@@ -66,6 +77,7 @@
             </td>
 
             <td style="width:300px;">
+                <!-- ********************************* Doughnut *********************************  -->
                 <canvas id="fundsDonutChart" width="300" height="200"></canvas>
                 <script>
                     //OceanBreeze palette from Coolors (thank you!)
