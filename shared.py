@@ -481,6 +481,23 @@ ORDER BY T.AtDate ASC """, (fund_id, fund_id, ))
     return pos[-limit:]
 
 
+def get_holdings_eom_sum(fund_id: int = None, limit :int = 1000):   
+    """ Get end-of-month holdings sum for a fund or all. """
+    #get the EOM holdings (NO LIMIT, need all in case)
+    eom = get_holdings_eom(fund_id)
+    #sum the end of month positions
+    eom_sum = {}
+    for d in eom:
+        eom_sum[d['at_date']] = eom_sum.get(d['at_date'], 0) + d['amount']
+
+    l = []
+    for date, amount in eom_sum.items():
+        l.append({"month": date, "monthly_amount": amount})
+    l.sort(key=lambda x: x["month"])  #sort by date ascending
+
+    return l[-limit:]
+
+
 def get_investments_eom (fund_id: int = None, limit :int = 1000):
     """ Get end-of-month investments (sum of buys) for a fund or all. """
     inv = []

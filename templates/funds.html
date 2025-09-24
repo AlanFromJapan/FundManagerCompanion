@@ -29,10 +29,10 @@
                     const eomChart = new Chart(ctx2, {
                         type: 'bar',
                         data: {
-                            labels: [{% for date in eom.keys() %}"{{ date }}",{% endfor %} ],
+                            labels: [{% for i in eom %}"{{ i.month }}",{% endfor %} ],
                             datasets: [{
                                 label: 'Total Holdings (JPY)',
-                                data: [{% for amount in eom.values() %}{{ amount }},{% endfor %}],
+                                data: [{% for i in eom %}{{ i.monthly_amount }},{% endfor %}],
                                 backgroundColor: 'rgba(0, 123, 255, 0.5)',
                                 borderColor: 'rgba(0, 123, 255, 1)',
                                 borderWidth: 1
