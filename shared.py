@@ -287,7 +287,7 @@ WHERE
             'portfolio_holding_contrib_pct': int(latest_position / total_holdings_amt * 100.0) if total_holdings_amt > 0 else 0,
             'perf_12m': perf_12m,
             'total_return_12m': total_return_12m,
-            'perf_evolution': perf_12m - perf_6m if perf_12m is not None and perf_6m is not None else 0.0,
+            'perf_evolution': total_return_12m - total_return_6m if total_return_12m is not None and total_return_6m is not None else 0.0,
             'daily_change_nav': latest_nav - second_latest_nav if latest_nav is not None and second_latest_nav is not None else 0.0,
         })
         
