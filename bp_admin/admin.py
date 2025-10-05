@@ -1,5 +1,5 @@
-from flask import  flash, render_template, request, Blueprint
-from shared import get_all_funds, import_latest_nav, import_history_nav
+from flask import  flash, render_template, request, Blueprint, send_file, redirect, url_for
+from shared import get_all_funds
 from datetime import datetime
 from fund import Fund
 
@@ -49,3 +49,23 @@ def admin_page():
 
     funds = get_all_funds(forced_reload=True)  # Refresh fund list
     return render_template('admin.html', conf=conf, funds=funds)
+
+
+@bp_admin.route('/admin/download-db')
+def download_database():
+    """Download the current database file"""
+    try:
+        db_path = conf['DB_PATH']
+        filename = f"database_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+        
+        return send_file(
+            db_path, 
+            as_attachment=True, 
+            download_name=filename,
+            mimetype='application/octet-stream'
+        )
+    except Exception as e:
+        flash(f'Failed to download database: {e}', 'error')
+
+    return redirect(url_for('bp_admin.admin_page'))
+    
