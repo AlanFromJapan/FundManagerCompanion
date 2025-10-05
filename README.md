@@ -46,7 +46,7 @@ Even better, including the dividends paid by fund minus the risk free interest r
 
 `docker build -t fund_manager_companion_image .`
 
-## Run Docker
+## Run Docker (non detached)
 
 You will need the data/data.db file. It's not in the image so has to be mapped from the outside on start.
 ```bash
@@ -60,4 +60,13 @@ Or you can mount a whole folder to keep the backups there too.
 #maps HOST /path/to/your/host/database.db to the expected /app/data/data.db in the container
 #will listen locally on port 54321 (port 5000 in the container)
 docker run -p 54321:5000 -v /path/to/your/host/fmc_data:/app/data fund_manager_companion_image
+```
+
+## Run Docker (detached)
+
+This is the one you want:
+```bash
+#maps HOST /path/to/your/host/fmc_data FODLER to the expected /app/data in the container
+#will listen locally on port 54321 (port 5000 in the container)
+docker run -d -p 54321:5000 -v /path/to/your/host/fmc/data:/app/data --restart unless-stopped --name fmc-container fund_manager_companion_image
 ```
