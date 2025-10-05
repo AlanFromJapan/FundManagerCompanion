@@ -40,3 +40,24 @@ Even better, including the dividends paid by fund minus the risk free interest r
 
 (((NAV end - NAV start) + Dividends paid over period) / Nav Start * 100%) - Risk Free Interest rate
 
+# Technical stuffs
+
+## Build Docker
+
+`docker build -t fund_manager_companion_image .`
+
+## Run Docker
+
+You will need the data/data.db file. It's not in the image so has to be mapped from the outside on start.
+```bash
+#maps HOST /path/to/your/host/database.db to the expected /app/data/data.db in the container
+#will listen locally on port 54321 (port 5000 in the container)
+docker run -p 54321:5000 -v /path/to/your/host/database.db:/app/data/data.db fund_manager_companion_image
+```
+
+Or you can mount a whole folder to keep the backups there too.
+```bash
+#maps HOST /path/to/your/host/database.db to the expected /app/data/data.db in the container
+#will listen locally on port 54321 (port 5000 in the container)
+docker run -p 54321:5000 -v /path/to/your/host/fmc_data:/app/data fund_manager_companion_image
+```
