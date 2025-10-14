@@ -1,11 +1,34 @@
 # FundManagerCompanion
-A web app to help you keep track of your funds investments and performance
+A web app to help you keep track of your funds investments and performance. Mainly if you're in Japan I think.
+
+![Header](static/images/Screenshot1.png)
+
 
 ## Concept
 I want to be able to keep track of when I invested on funds, and see the compound performance of the funds. Today my fund management site gives me a number and that's it.
 
+## Portfolio status
+
+What you invested in, each fund PnL, weight, percentage of your portfolio.
+
+![Funds list](static/images/Screenshot2.jpg)
+
+## Each fund details
+
+Static info, code,s returns, dividends, investment PnL, transactions history, NAV graph and details, etc.
+
+![Funds list](static/images/Screenshot3.jpg)
+
 # Quotations API
 Mutual Funds have a price daily (NAV Net Asset Value) published at market closure at end of day (except ETF I know). Getting consistently prices from all of them will be a chore since I don't plan to pay for an API provider. 
+
+## Investment Trust Association Japan 投資信託協会
+
+THE reference, all asset managers in Japan must share the NAV to them every evening around 6~8pm (my years in asset management are getting blurry).
+
+You get every fund, and you can download the fund's daily NAV since inception via CSV. This is what I use in the app for the **WHOLE NAV history**. 
+
+https://toushin-lib.fwg.ne.jp/FdsWeb/FDST000000
 
 ## MUFG Funds
 Bravo guys, you have a free API that does not require registration!😍 WOW. Just WOW.
@@ -22,6 +45,8 @@ Seems that the Nikkei Journal has a page with all needed, no paywall, and parsea
 See `https://www.nikkei.com/nkd/fund/?fcode=0131106B` or `https://www.nikkei.com/nkd/fund/?fcode=03311112` (same fund as above) BUT THE PRICES ARE DELAYED (now 21:30 and still D-1 prices)
 
 Also Yahoo Finance is similar with `https://finance.yahoo.co.jp/quote/0131106B` and `https://finance.yahoo.co.jp/quote/03311112` (same fund as above) AND PRICES SEEM LATEST (at 21:30 I'm seeing day D closure prices)
+
+I'm scrapping last ~20 NAV from Yahoo Finance price history page when you click **Update HISTORICAL NAV**.
 
 # Financial indicators
 
