@@ -16,6 +16,8 @@ from bp_newfund import bp_newfund
 
 app = Flask(__name__, static_url_path='')
 app.secret_key = conf['SECRET_KEY']
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000  # Max upload - 16 MB
+
 
 #Register the blueprints
 

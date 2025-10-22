@@ -27,3 +27,11 @@ function clickConfirm(pname, pvalue, pmessage="Sure ?") {
         f.submit();
     }
 }
+
+//Adds a confirmation popup before returning true (or just return true if pmessage == '') for input=submit buttons
+function clickConfirmInput(pmessage="Sure ?") {
+    if (pmessage == '' || confirm(pmessage)){
+        return true;
+    }
+    return false;
+}

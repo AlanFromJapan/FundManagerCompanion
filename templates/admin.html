@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Admin page</h1>
 
-<form  id="theForm" method="post" action="/admin">
+<form  id="theForm" method="post" action="/admin" enctype="multipart/form-data">
 
 <div style="text-align: right;">
     <input type="submit" name="submit_button" value="Save Settings" />
@@ -36,6 +36,17 @@
             <td><p>Download the current database file:</p></td>
             <td><input type="submit" name="submit_button" value="Download database" onclick="window.location.href='/admin/download-db'; return false;" /></td>
         </tr>
+        <tr>
+            <td><p>Upload (overwrite) the current database file:</p></td>
+            <td><input type="file" name="upload_db" />
+                <input 
+    type="submit" 
+    name="submit_button" 
+    onClick="return clickConfirmInput('⚠️⚠️⚠️ Are you sure you want to upload a new database file?\nDid you make a backup before?'); " 
+    value="Upload database"></input>
+
+            </td>
+        </tr>
     </table>
     
     
@@ -57,7 +68,7 @@
     name="submit_button" 
     onClick="clickConfirm('action_delete', 
         document.getElementById('deleteFund').value, 
-        'Are you sure you want to delete this fund ['+document.getElementById('deleteFund').options[document.getElementById('deleteFund').selectedIndex].text+'] ?');" 
+        '⚠️⚠️⚠️ Are you sure you want to delete this fund ['+document.getElementById('deleteFund').options[document.getElementById('deleteFund').selectedIndex].text+'] ?');" 
     value="Delete fund"></input>
 </div>
 
