@@ -18,7 +18,16 @@
             </td>
         </tr>
         <tr>
-            <td><label for="reception_date">Stock Reception Date:</label></td>
+            <td><label for="transaction_type">Transaction Type:</label></td>
+            <td>
+                <select id="transaction_type" name="transaction_type" required>
+                    <option value="purchase">Purchase</option>
+                    <option value="redemption">Redemption</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="reception_date">Stock Reception/Redemption Date (受渡日):</label></td>
             <td>
                 <input type="date" id="reception_date" name="reception_date" required>
             </td>
@@ -28,8 +37,8 @@
             <td><input type="number" id="quantity" name="quantity" step="any" required></td>
         </tr>
         <tr>
-            <td><label for="price">Price:</label></td>
-            <td><input type="number" id="price" name="price" step="any" required></td>
+            <td><label for="amount">Transaction total amount:</label></td>
+            <td><input type="number" id="amount" name="amount" step="any" required></td>
         </tr>
     </table>
 

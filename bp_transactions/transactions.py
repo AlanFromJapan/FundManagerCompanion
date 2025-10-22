@@ -20,18 +20,20 @@ def register_transaction_form():
 @bp_transactions.route('/transactions/register', methods=['POST'])
 def register_transaction():    
     fund_id = request.form.get('fund_id')
+    trans_type = request.form.get('transaction_type')
+    trans_type = 'お買付' if trans_type == 'purchase' else '解約' #Ugly, centralize later
     reception_date = request.form.get('reception_date')
-    quantity = int(request.form.get('quantity'))
-    price = int(request.form.get('price'))
-    unitprice = 10000 * price // quantity if quantity and float(quantity) != 0 else 0
-    if not fund_id or not reception_date or not quantity or not price:
+    quantity = abs(int(request.form.get('quantity'))) # Always positive quantity
+    amount = abs(int(request.form.get('amount'))) # Always positive amount
+    unitprice = round(10000.0 * amount / quantity) if quantity and float(quantity) != 0 else 0
+    if not fund_id or not reception_date or not quantity or not amount:
         flash('All fields are required.', 'error')
         return redirect(url_for('bp_transactions.register_transaction_form'))
     try:
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
         cur.execute('INSERT INTO XACT (TradeDate, ExecutionDate, XactType, FundID, Unit, XactPrice, UnitPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    (reception_date, reception_date, 'お買付', fund_id, quantity, price, unitprice))
+                    (reception_date, reception_date, trans_type, fund_id, quantity, amount, unitprice))
         conn.commit()
         conn.close()  
         flash('Transaction registered successfully.', 'success')
