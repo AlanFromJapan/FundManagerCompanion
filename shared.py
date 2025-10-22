@@ -357,6 +357,11 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
         conn = sqlite3.connect(conf['DB_PATH'])
         cur = conn.cursor()
 
+        #Erase all positions from start_date onwards if specified. Not needed if not specified, since continue from last date 8ergo nothing after anyway)
+        if start_date:
+            print(f"Erasing positions from {start_date.strftime('%Y-%m-%d')} for fund_id={fund_id}")
+            cur.execute("DELETE FROM POSITION WHERE AtDate >= ? AND (FundId = ? OR ? IS NULL)", (start_date.strftime('%Y-%m-%d'), fund_id, fund_id))
+
         exec_date = start_date
         if not start_date:
             cur.execute("SELECT AtDate, * FROM POSITION WHERE (FundId = ? OR ? IS NULL) ORDER BY AtDate DESC LIMIT 1", (fund_id, fund_id))
@@ -397,7 +402,8 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
                 exec_date = row[2]
                 unit = row[5]
                 xact_type = row[3]
-                amount = row[6] * unit  # XactPrice is the total price for the units
+                unit_price = row[6]
+                amount = int(float(unit_price) * float(unit) / 10000.0)  # XactPrice is the total price for the units
 
                 if xact_type == 'お買付':
                     #buy
@@ -413,7 +419,7 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
                     #skip other types (e.g. dividends, etc.)
                     continue
 
-                print(f"Processing transaction: {xact_type} {unit} units at {amount} each for fund {fund_id} on {exec_date} ")
+                print(f"Processing transaction: {xact_type} {unit:,.0f} units at {unit_price:,.0f} each (total = {amount:,.0f}) for fund {fund_id} on {exec_date} ")
 
                 #is it the FIRST transaction for this fund?
                 if not cur.execute("SELECT * FROM POSITION WHERE FundID = ? LIMIT 1", (fund_id,)).fetchone():
