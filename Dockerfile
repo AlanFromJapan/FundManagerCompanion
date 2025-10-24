@@ -2,10 +2,14 @@ FROM python:3.12-alpine
 
 WORKDIR /app
 
-COPY . /app
+# Copy requirements first to leverage Docker layer caching
+COPY requirements.txt .
 
 # Install Python dependencies if requirements.txt exists
 RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+
+# Copy application code
+COPY . .
 
 EXPOSE 5000
 
