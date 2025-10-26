@@ -383,14 +383,15 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
         d = exec_date
         #for every date until yesterday
         while d <= datetime.datetime.today() - datetime.timedelta(days=1):
+            d_minus1 = d - datetime.timedelta(days=1)
             # copy the previous day's positions
             cur.execute(
                 '''INSERT OR REPLACE INTO "POSITION" (FundID, AtDate, Unit, Amount) 
                 SELECT FundID, ?, Unit, Amount FROM POSITION WHERE AtDate = ? AND (FundId = ? OR ? IS NULL)''',
-                (d.strftime('%Y-%m-%d'), (d - datetime.timedelta(days=1)).strftime('%Y-%m-%d'), fund_id, fund_id)
+                (d.strftime('%Y-%m-%d'), d_minus1.strftime('%Y-%m-%d'), fund_id, fund_id)
             )
 
-            #print(f"▶Processing positions for date: {d.strftime('%Y-%m-%d')} len(xacts)={len(xacts)}")
+            print(f"▶Processing positions for date: {d.strftime('%Y-%m-%d')} len(xacts)={len(xacts)}")
 
             # Process transactions for the current date (d = execution date)
             while len(xacts) > 0 and xacts[0][2] == d.strftime('%Y-%m-%d'):
@@ -398,40 +399,74 @@ def recalculate_positions(start_date:datetime = None, fund_id: int = None):
                 row = xacts.pop(0)
 
                 # Process the transaction
-                fund_id = row[4]
+                xact_fund_id = row[4]
                 exec_date = row[2]
                 unit = row[5]
                 xact_type = row[3]
                 unit_price = row[6]
                 amount = int(float(unit_price) * float(unit) / 10000.0)  # XactPrice is the total price for the units
 
-                if xact_type == 'お買付':
-                    #buy
-                    pass
-                elif xact_type == '再投資買付':
-                    #reinvestment buy
-                    pass
+                print(f"Processing transaction: {xact_type} {unit:,.0f} units at {unit_price:,.0f} each (total = {amount:,.0f}) for fund {xact_fund_id} on {exec_date} ")
+
+                #get Current position AS OF PREVIOUS KNOWN DATE
+                cur.execute("SELECT Unit, AMount FROM POSITION WHERE FundID = ? AND AtDate = ?", (xact_fund_id, d_minus1.strftime('%Y-%m-%d')))
+                current_position = cur.fetchone()
+                if not current_position:
+                    print(f"No existing position found for fund {xact_fund_id} as of {d_minus1.strftime('%Y-%m-%d')}, initializing to zero.")
+                    current_unit = 0
+                    current_amount = 0
+                else:
+                    current_unit = current_position[0]
+                    current_amount = current_position[1]
+                print(f"Current position for fund {xact_fund_id} as of {d_minus1.strftime('%Y-%m-%d')}: {current_unit:,.0f} units, amount: {current_amount:,.0f}")
+
+
+                if xact_type == 'お買付' or xact_type == '再投資買付':
+                    #buy or reinvestment buy
+
+                    #is it the FIRST transaction for this fund?
+                    if current_unit == 0:
+                        print("Initializing positions for fund ", xact_fund_id)
+                        #insert a new position record with 0 initial values
+                        cur.execute('INSERT INTO POSITION (FundID, AtDate, Unit, Amount) VALUES (?, ?, 0, 0)', (xact_fund_id, d.strftime('%Y-%m-%d')))
+
+                    # Update the position
+                    cur.execute(
+                        #TODO FIX don't sum amount, recalculate it with NAV of the date once I have it (future update)
+                        'UPDATE POSITION SET Unit = Unit + ?, Amount = Amount + ? WHERE FundID = ? AND AtDate = ?',
+                        (unit, amount, xact_fund_id, d.strftime('%Y-%m-%d'))
+                    )
+
+
                 elif xact_type == '解約':
                     #sell (redemption)
-                    unit = -unit
-                    amount = -amount
+
+                    #is it the FIRST transaction for this fund?
+                    if current_unit == 0:
+                        print(f"WFH selling on non-existing position for fund {xact_fund_id}, skipping.")
+                        continue  #skip
+
+                    #block short selling
+                    if current_unit < unit:
+                        print(f"WFH short-selling on non-existing position for fund {xact_fund_id}, skipping.")
+                        continue  #skip
+
+                    # Update the position
+                    if current_unit - unit == 0:
+                        print("Treat as full redemption, setting amount to zero")
+                        new_unit = 0
+                        new_amount = 0
+                    else:
+                        new_unit = current_unit - unit
+                        new_amount = current_amount - amount
+
+                    cur.execute('INSERT OR REPLACE INTO POSITION (FundID, AtDate, Unit, Amount) VALUES (?, ?, ?, ?)', (xact_fund_id, d.strftime('%Y-%m-%d'), new_unit, new_amount))
+
                 else:
                     #skip other types (e.g. dividends, etc.)
-                    continue
+                    print(f"Skipping transaction type {xact_type} for fund {xact_fund_id} on {d}")
 
-                print(f"Processing transaction: {xact_type} {unit:,.0f} units at {unit_price:,.0f} each (total = {amount:,.0f}) for fund {fund_id} on {exec_date} ")
 
-                #is it the FIRST transaction for this fund?
-                if not cur.execute("SELECT * FROM POSITION WHERE FundID = ? LIMIT 1", (fund_id,)).fetchone():
-                    #insert a new position record with 0 initial values
-                    cur.execute('INSERT INTO POSITION (FundID, AtDate, Unit, Amount) VALUES (?, ?, 0, 0)', (fund_id, d.strftime('%Y-%m-%d')))
-
-                # Update the position
-                cur.execute(
-                    #TODO FIX don't sum amount, recalculate it with NAV of the date once I have it (future update)
-                    'UPDATE POSITION SET Unit = Unit + ?, Amount = Amount + ? WHERE FundID = ? AND AtDate = ?',
-                    (unit, amount, fund_id, d.strftime('%Y-%m-%d'))
-                )
 
 
 
