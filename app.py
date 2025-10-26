@@ -1,5 +1,6 @@
 
 
+import os
 from flask import Flask, render_template, request, send_from_directory
 from config import conf 
 
@@ -27,6 +28,11 @@ app.register_blueprint(bp_transactions)
 app.register_blueprint(bp_holdings)
 app.register_blueprint(bp_newfund)
 
+
+@app.context_processor
+def inject_extra_context():
+    #For ALL the templates to have access to some common values
+    return dict(isProd=os.environ.get('FLASK_ENV','') == 'prod')
 
 @app.route('/favicon.ico')
 def favicon():

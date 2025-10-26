@@ -49,6 +49,11 @@
 {%- endmacro %}
     
     <header>
+        {% if not isProd %} 
+        <div style="background-color: brown; text-align: center; height: 50px;">
+            <marquee style="margin: 0;font-size: 32px;">DEV ENV - NOT PROD / DEV ENV - NOT PROD / DEV ENV - NOT PROD</marquee>
+        </div>
+        {% endif %}
         <div style="display: flex; align-items: center;">
             <img src="/favicon.png" alt="Favicon" style="width: 64px; margin-right: 1em;" />
             <h1 style="margin: 0;">Fund Manager Companion</h1>
