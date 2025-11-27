@@ -6,7 +6,19 @@
 <h1>Register New Fund</h1>
 <form method="post" action="/funds/register" class="register-fund-form">
     <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="name" name="name" required style="flex: 1;" oninput="updatePrompt();" />
+        <button type="button" id="search-fund-btn" onclick="searchFundInfo()" style="background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+            🔍 Search ISIN/市場コード
+        </button>
+    </div>
+    
+    <label for="isin">ISIN:</label>
+    <input type="text" id="isin" name="isin" placeholder="Will be filled by ChatGPT search">
+    
+    <label for="market_code">Market Code (市場コード):</label>
+    <input type="text" id="market_code" name="market_code" placeholder="Will be filled by ChatGPT search">
+    
     <label for="currency">Currency:</label>
     <input type="text" id="currency" name="currency" required maxlength="3" size="3" value="JPY">
 
@@ -27,4 +39,74 @@
 
     <input type="submit" value="Register Fund">
 </form>
+
+<p style="font-weight: bold; ">Prompt for code search:</p>
+<pre id="prompting" style="font-style: italic; background-color: darkkhaki;">
+    (type a fund name to see prompt update)
+</pre>
+
+<script>
+
+function updatePrompt() {
+    const fundName = document.getElementById('name').value.trim();
+    const promptElement = document.getElementById('prompting');
+    if (fundName) {
+        base_prompt = `{{ prompt | safe }}`;
+        promptElement.textContent = base_prompt.replace("%%FUND_NAME%%", fundName);
+    }
+}
+
+async function searchFundInfo() {
+    const fundName = document.getElementById('name').value.trim();
+    if (!fundName) {
+        alert('Please enter a fund name first.');
+        return;
+    }
+    
+    const searchBtn = document.getElementById('search-fund-btn');
+    const originalText = searchBtn.innerHTML;
+    searchBtn.innerHTML = '⏳ Searching...';
+    searchBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/funds/search_fund_info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fund_name: fundName
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Fill in the form fields with the results
+            if (result.isin) {
+                document.getElementById('isin').value = result.isin;
+            }
+            if (result.market_code) {
+                document.getElementById('market_code').value = result.market_code;
+            }
+            
+            // Show confidence and notes
+            let message = `Search completed!\n`;
+            message += `Confidence: ${result.confidence}\n`;
+            if (result.notes) {
+                message += `Notes: ${result.notes}`;
+            }
+            alert(message);
+        } else {
+            alert(`Error: ${result.error}`);
+        }
+    } catch (error) {
+        alert(`Network error: ${error.message}`);
+    } finally {
+        searchBtn.innerHTML = originalText;
+        searchBtn.disabled = false;
+    }
+}
+</script>
+
 {% endblock %}

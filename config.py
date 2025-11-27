@@ -7,7 +7,8 @@ class Config(dict):
 
         #don't forget to initialize these to None to avoid attribute errors and make sure values are loaded from DB BEFORE first access
         self.__risk_free_rate = None 
-        self.__target_yearly_rate = None 
+        self.__target_yearly_rate = None
+        self.__openai_api_key = None 
 
 
     @property
@@ -53,6 +54,21 @@ class Config(dict):
         self.set_DB_value('TargetYearlyRate', value)
         self.__target_yearly_rate = value
 
+    @property
+    def openai_api_key(self):
+        if self.__openai_api_key is not None:
+            return self.__openai_api_key
+        
+        self.__openai_api_key = self.get_DB_value('OpenAI_API_Key', default=None)
+        return self.__openai_api_key
+
+    @openai_api_key.setter
+    def openai_api_key(self, value):
+        if not value:
+            raise ValueError("OpenAI API key cannot be empty.")
+        
+        self.set_DB_value('OpenAI_API_Key', value)
+        self.__openai_api_key = value
 
     #------------- Database interaction methods -------------
 
