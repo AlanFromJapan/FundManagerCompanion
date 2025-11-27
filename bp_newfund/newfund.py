@@ -1,7 +1,7 @@
 from flask import Blueprint, request, flash, redirect, url_for, render_template
 import sqlite3
 from config import conf
-from shared import get_coding_systems, get_all_funds
+from shared import get_coding_systems, get_all_funds, import_whole_nav
 
 bp_newfund = Blueprint('bp_newfund', __name__)
 
@@ -56,12 +56,22 @@ def register_fund():
         #ZA final commit
         conn.commit()
 
+        #fund is registered successfully, get the historical prices
+        funds_list = get_all_funds(forced_reload=True)  # Refresh fund list cache
+
+        new_fund = [f for f in funds_list if f.fund_id == int(fund_id)]
+        if new_fund:
+            #get all the NAV data for this fund from Asset manager assoc
+            import_whole_nav(new_fund[0])
+
         flash(f'Fund {name} (ID: {fund_id}) registered successfully.', 'success')
+        
+        #redirect to register transaction for this fund
+        return redirect(url_for('bp_transactions.register_transaction_form'))
     except Exception as e:
         flash(f'Error registering fund: {e}', 'error')
     finally:
         conn.close()
 
-    get_all_funds(forced_reload=True)  # Refresh fund list cache
 
     return redirect(url_for('show_funds_page'))

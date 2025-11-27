@@ -1,8 +1,9 @@
 
 from flask import render_template, request, Blueprint, redirect, url_for, flash
-from shared import get_transactions, get_all_funds
+from shared import get_transactions, get_all_funds, recalculate_positions
 import sqlite3
 from config import conf
+import datetime
 
 bp_transactions = Blueprint('bp_transactions', __name__)
 
@@ -37,6 +38,13 @@ def register_transaction():
         conn.commit()
         conn.close()  
         flash('Transaction registered successfully.', 'success')
+
+        # Recalculate positions since the transaction date -1d in case
+        start_date = datetime.datetime.strptime(reception_date, '%Y-%m-%d') - datetime.timedelta(days=1)
+        recalculate_positions(start_date=start_date, fund_id=int(fund_id))
+
+        flash(f'Positions recalculated successfully since {start_date}.', 'success')
+
     except Exception as e:
         flash(f'Error registering transaction: {e}', 'error')
     return redirect(url_for('bp_transactions.transactions_page'))
