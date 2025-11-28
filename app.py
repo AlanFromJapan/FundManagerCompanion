@@ -14,6 +14,7 @@ from bp_admin.admin import bp_admin
 from bp_transactions.transactions import bp_transactions
 from bp_holdings.holdings import bp_holdings
 from bp_newfund import bp_newfund
+from bp_api.api import bp_api
 
 app = Flask(__name__, static_url_path='')
 app.secret_key = conf['SECRET_KEY']
@@ -27,6 +28,7 @@ app.register_blueprint(bp_admin)
 app.register_blueprint(bp_transactions)
 app.register_blueprint(bp_holdings)
 app.register_blueprint(bp_newfund)
+app.register_blueprint(bp_api)
 
 
 @app.context_processor
