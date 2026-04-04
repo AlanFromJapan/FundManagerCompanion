@@ -156,7 +156,7 @@
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"]) }}</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_unit"] * p["latest_nav"] / 10000.0 ) }}&nbsp;円</td>
         <td class="rightalign">{{ "{:,.0f}".format(p["latest_nav"]) }}<br/><span class="rightalign {{ 'stat_positive' if p['daily_change_nav'] > 0 else 'stat_negative' if p['daily_change_nav'] < 0 else '' }}">{{ "{:+,.0f}".format(p['daily_change_nav']) }}</span></td>
-        <td class="rightalign unbreakable {{ 'stat_positive' if p['total_return_6m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_6m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_6m"]) }} {{ "🚀" if p['perf_evolution'] < 0 else ""  }}</td>
+        <td class="rightalign unbreakable {{ 'stat_positive' if not p['total_return_6m'] == None and p['total_return_6m'] > ytd_warning_threshold else 'stat_negative' if not p['total_return_6m'] == None and p['total_return_6m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_6m"]) if not p["total_return_6m"] == None else "??"  }} {{ "🚀" if p['perf_evolution'] < 0 else ""  }} {{ "⚠️" if p['total_return_6m'] == None else ""  }}</td>
         <td class="rightalign {{ 'stat_positive' if p['total_return_12m'] > ytd_warning_threshold else 'stat_negative' if p['total_return_12m'] < 0 else 'stat_warning' }}">{{ "{:+,.2f}%".format(p["total_return_12m"]) }}</td>
     </tr>
     {% endfor %}
