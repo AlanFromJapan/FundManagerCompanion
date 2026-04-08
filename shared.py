@@ -264,7 +264,7 @@ WHERE
         latest_date_position = row[4]
         latest_nav = row[5]
         latest_date_nav = row[6]
-        nav_jan1 = row[7]
+        nav_6m = row[7]
         perf_6m = row[8]
         total_return_6m = row[9]
         latest_position = row[10]
@@ -280,14 +280,14 @@ WHERE
             'latest_date_position': latest_date_position,
             'latest_nav': latest_nav,
             'latest_date_nav': latest_date_nav,
-            'nav_jan1': nav_jan1,
-            'perf_6m': perf_6m,
-            'total_return_6m': total_return_6m,
+            'nav_6m': nav_6m if perf_6m is not None else 0.0,
+            'perf_6m': perf_6m if perf_6m is not None else -99999.0,
+            'total_return_6m': total_return_6m if total_return_6m is not None else -99999.0,
             'latest_position': latest_position,
             'portfolio_holding_contrib_pct': int(latest_position / total_holdings_amt * 100.0) if total_holdings_amt > 0 else 0,
-            'perf_12m': perf_12m,
-            'total_return_12m': total_return_12m,
-            'perf_evolution': total_return_12m - total_return_6m if total_return_12m is not None and total_return_6m is not None else 0.0,
+            'perf_12m': perf_12m if perf_12m is not None else -99999.0,
+            'total_return_12m': total_return_12m if total_return_12m is not None else -99999.0,
+            'perf_evolution': (total_return_12m if total_return_12m is not None else -99999.0) - (total_return_6m if total_return_6m is not None else -99999.0),
             'daily_change_nav': latest_nav - second_latest_nav if latest_nav is not None and second_latest_nav is not None else 0.0,
         })
         

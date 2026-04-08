@@ -299,15 +299,20 @@ class Fund:
         else:
             final_nav = self.get_fund_nav_at_date(final_date)
 
-        if include_dividends:
+        if include_dividends and final_nav is not None:
             dividends = self.get_dividends_between_dates(initial_date, final_date)
             sum_divs = sum([d['amount'] for d in dividends])
             #print (f"Sum divs = {sum_divs} for period {initial_date} to {final_date}")
-            final_nav += sum_divs
+            final_nav += sum_divs if sum_divs is not None else 0
 
         if initial_nav == 0 or not initial_nav:
             return 0.0
-        return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
+        
+        try:
+            return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
+        except Exception as e:
+            print(f"Error calculating NAV return in stats_nav_return(): {e}")
+            return -99999.0
     
 
     def stats_cagr(self, initial_nav, final_nav, years):
@@ -316,7 +321,11 @@ class Fund:
         """
         if years <= 0 or initial_nav == 0 or not initial_nav:
             return 0.0
-        return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
+        try:
+            return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
+        except Exception as e:
+            print(f"Error calculating CAGR in stats_cagr(): {e}")
+            return -99999.0
     
 
     @classmethod
