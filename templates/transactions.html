@@ -4,7 +4,23 @@
 
 {% block content %}
 <div class="visual-frame">
-<a href="/transactions/register">Register fund transaction 💸</a>
+    <table class="noborder" style="width:100%; ">
+        <tr>
+            <td>
+                <a href="/transactions/register">Register fund transaction 💸</a>
+            </td>
+            <td style="text-align:right;">
+                <form method="post" action="/transactions/csvimportMonex" enctype="multipart/form-data" id="csv-import-form">
+                    <input type="file" id="csv_file" name="csv_file" accept=".csv"
+                        style="display:none"
+                        onchange="document.getElementById('csv-import-form').submit()">
+                    <label for="csv_file" style="cursor:pointer">Import CSV (Monex) <img src="/images/ico_monex.ico" alt="Monex Icon" /></label>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+
 </div>
 <h1>Transactions</h1>
 
