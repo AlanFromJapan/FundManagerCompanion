@@ -44,17 +44,25 @@ def register_transaction():
 def xact_save_to_db(fund_id, trans_type, reception_date, quantity, amount, unitprice):
     conn = sqlite3.connect(conf['DB_PATH'])
     cur = conn.cursor()
-    cur.execute('INSERT INTO XACT (TradeDate, ExecutionDate, XactType, FundID, Unit, XactPrice, UnitPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    (reception_date, reception_date, trans_type, fund_id, quantity, amount, unitprice))
-    conn.commit()
-    conn.close()  
-    flash('Transaction registered successfully.', 'success')
+
+    # first check if not already exists a transaction with same fund_id, reception_date, quantity
+    cur.execute('SELECT COUNT(*) FROM XACT WHERE FundID = ? AND TradeDate = ? AND Unit = ? AND XactType = ?',
+                (fund_id, reception_date, quantity, trans_type))
+    if cur.fetchone()[0] == 0:
+        cur.execute('INSERT OR IGNORE INTO XACT (TradeDate, ExecutionDate, XactType, FundID, Unit, XactPrice, UnitPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        (reception_date, reception_date, trans_type, fund_id, quantity, amount, unitprice))
+        conn.commit()
+        conn.close()  
+        flash('Transaction registered successfully.', 'success')
 
         # Recalculate positions since the transaction date -1d in case
-    start_date = datetime.datetime.strptime(reception_date, '%Y-%m-%d') - datetime.timedelta(days=1)
-    recalculate_positions(start_date=start_date, fund_id=int(fund_id))
-    return start_date
-
+        start_date = datetime.datetime.strptime(reception_date, '%Y-%m-%d') - datetime.timedelta(days=1)
+        recalculate_positions(start_date=start_date, fund_id=int(fund_id))
+        return start_date
+    else:
+        conn.close()  
+        flash(f'Ignoring duplicate transaction for fund {fund_id} on {reception_date} with quantity {quantity} and type {trans_type}.', 'warning')
+        return None
 
 
 @bp_transactions.route('/transactions/csvimportMonex', methods=['POST'])
