@@ -42,7 +42,7 @@ class TransactionType(Enum):
                 return "Other"
 
 class Fund:
-    def __init__(self, fund_id, name, currency):
+    def __init__(self, fund_id, name, currency, latest_units=0):
         self.fund_id = fund_id
         self.name = name
         self.currency = currency
@@ -50,18 +50,19 @@ class Fund:
         self.nav = {}
         self.dividends = None
         self.transactions = []
+        self.latest_units = latest_units
 
 
     @classmethod
     def from_db_row(cls, row):
-        # Assumes row is (FundID, Name, Currency)
-        return cls(row[0], row[1], row[2])
+        # Assumes row is (FundID, Name, Currency, LatestUnits)
+        return cls(row[0], row[1], row[2], row[3])
 
 
 
 
     def __repr__(self):
-        return f"<Fund id={self.fund_id} name={self.name} currency={self.currency}>"
+        return f"<Fund id={self.fund_id} name={self.name} currency={self.currency} latest_units={self.latest_units}>"
 
     @property
     def nav_sorted(self):
@@ -311,7 +312,7 @@ class Fund:
         try:
             return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
         except Exception as e:
-            print(f"Error calculating NAV return in stats_nav_return(): {e}")
+            print(f"Error calculating NAV return in stats_nav_return() for fund {self.name} (ID={self.fund_id}): {e}")
             return -99999.0
     
 
@@ -324,7 +325,7 @@ class Fund:
         try:
             return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
         except Exception as e:
-            print(f"Error calculating CAGR in stats_cagr(): {e}")
+            print(f"Error calculating CAGR in stats_cagr() for fund {self.name} (ID={self.fund_id}): {e}")
             return -99999.0
     
 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Investment Analysis{% endblock %}
+
+{% block content %}
+<h1>Investment Analysis</h1>
+<p style="font-size: smaller;">Funds currently invested, sorted by 1Y Return</p>
+<table class="funds_table">
+    <thead>
+        <tr>
+            <th style="width:300px;">Fund Name</th>
+            <th style="width:36px;">Details</th>
+            <th>Units</th>
+            <th>AUM</th>
+            <th>Latest NAV (Δ1d)</th>
+            <th>1Y Return</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fund in funds %}
+        <tr>
+            <td>{{ fund.name }}</td>
+            <td>
+                <a href="/funds/{{ fund.fund_id }}"><img src="/favicon.png" alt="Details" width="16" /></a>&nbsp;
+                <a href="https://fund.monex.co.jp/detail/{{fund.codes['monex'] if 'monex' in fund.codes else fund.codes['yahoo_finance']}}" target="_blank"><img src="/images/ico_monex.ico" alt="Monex Icon" width="16" /></a>&nbsp;
+                <a href="https://finance.yahoo.co.jp/quote/{{fund.codes['yahoo_finance']}}" target="_blank"><img src="/images/ico_yahoofinance.ico" alt="Yahoo Finance Icon" width="16" /></a>&nbsp;
+                <a href="https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd={{fund.codes['ISIN']}}" target="_blank"><img src="/images/ico_toushinlib.png" alt="Toushin Lib Icon" width="16" /></a>
+            </td>
+            <td class="rightalign">{{ "{:,.0f}".format(fund.latest_units) }}</td>
+            <td class="rightalign">{{ "{:,.0f}".format(fund.latest_units * fund.latest_nav / 10000.0) if fund.latest_nav else "n/a" }}</td>
+            <td class="rightalign">{{ "{:,.0f}".format(fund.latest_nav) if fund.latest_nav else "n/a" }} 
+                (<span class="{{ 'stat_positive' if fund.nav_diff| length > 0 and fund.nav_diff[0]['diffpct'] > 0 else 'stat_negative' }}" style="font-size: smaller;">{{ "{:,.2f}".format(fund.nav_diff[0]["diffpct"]) + "%" if fund.nav_diff and fund.nav_diff|length > 0 else "n/a" }}</span>)
+            </td>
+            <td class="rightalign {{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' }}">{{ "{:,.2f}".format(fund.stats["return_1y"]) + "%" if "return_1y" in fund.stats else "n/a" }}</td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+{% endblock %}
