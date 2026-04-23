@@ -10,7 +10,10 @@
 <table class="screensplit">
     <tbody>
         <tr>
-            <td><span class="total_positions">Total estimated position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span></td>
+            <td><span class="total_positions">Total position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span><br/>
+Total invested amount = {{ "{:,.0f}".format(stats['total_invested']) }} 円<br/>
+Total return = {{ "{:,.0f}".format(stats['total_return']) }} 円 ({{ "{:,.2f}".format(stats['total_return_perc']) }} %)
+</td>
             <td class="rightalign"><a href="/funds/register" class="button" style="margin-bottom: 1em; display: inline-block;">🌱 Register New Fund</a></td>
         </tr>
     </tbody>

@@ -213,7 +213,10 @@ SELECT
 	WHERE 
 		NAV_PREVDAY.FundId = F.FundId 
 		AND NAV_PREVDAY.AtDate < NAVS.AtDate
-	ORDER BY NAV_PREVDAY.AtDate DESC LIMIT 1), 0) as SecondLatestNAV
+	ORDER BY NAV_PREVDAY.AtDate DESC LIMIT 1), 0) as SecondLatestNAV,
+	
+	(SELECT SUM(X.XactPrice * (CASE WHEN X.XactType = '解約' THEN -1 ELSE 1 END)) FROM XACT as X WHERE X.FundId = F.FundId AND X.XactType IN ('解約', 'お買付', '再投資買付') ) as TotalSumInvested
+
 from 
     FUND as F 
     JOIN POSITION as P ON F.FundId = P.FundId AND P.AtDate = (SELECT MAX(P2.AtDate) FROM POSITION as P2)
@@ -271,6 +274,7 @@ WHERE
         perf_12m = row[11]
         total_return_12m = row[12]
         second_latest_nav = row[13]
+        total_sum_invested = row[14]
 
         pos.append({
             'fund_id': fund_id,
@@ -289,6 +293,7 @@ WHERE
             'total_return_12m': total_return_12m if total_return_12m is not None else -99999.0,
             'perf_evolution': (total_return_12m if total_return_12m is not None else -99999.0) - (total_return_6m if total_return_6m is not None else -99999.0),
             'daily_change_nav': latest_nav - second_latest_nav if latest_nav is not None and second_latest_nav is not None else 0.0,
+            'total_sum_invested': total_sum_invested
         })
         
     conn.close()
@@ -604,3 +609,17 @@ FROM
 
         inv = expanded_inv
     return inv[-limit:]
+
+
+def get_overall_stats() -> dict:
+    ''' Get overall stats for the portfolio, including total funds count, total positions, total invested amount, total return, and return percentage. '''
+    pos = get_latest_positions()
+    funds = get_all_funds()
+    stats = {}
+    stats['total_funds_count'] = len(funds)
+    stats['total_positions'] = sum(p["latest_unit"] * p["latest_nav"] /10000.0 for p in pos)
+    stats['total_invested'] = sum(p["total_sum_invested"] for p in pos) 
+    stats['total_return'] = stats['total_positions'] - stats['total_invested']
+    stats['total_return_perc'] = (stats['total_return'] / stats['total_invested'] * 100.0) if stats['total_invested'] > 0 else 0.0
+
+    return stats

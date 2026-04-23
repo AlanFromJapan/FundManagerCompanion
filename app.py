@@ -7,7 +7,7 @@ from config import conf
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
-from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom_sum, get_investments_eom
+from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom_sum, get_investments_eom, get_overall_stats
 
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
@@ -58,9 +58,7 @@ def show_funds_page():
     eom_sum = get_holdings_eom_sum(limit=eom_months_display)
     inv_eom = get_investments_eom(limit=eom_months_display)
 
-    stats = {}
-    stats['total_funds_count'] = len(funds)
-    stats['total_positions'] = sum(p["latest_unit"] * p["latest_nav"] /10000.0 for p in pos)
+    stats = get_overall_stats()
 
     #sort positions ascending by maximum calculated position value
     pos.sort(key=lambda x: x["latest_unit"] * x["latest_nav"], reverse=True)

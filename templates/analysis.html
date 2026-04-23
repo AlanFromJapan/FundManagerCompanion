@@ -5,6 +5,12 @@
 {% block content %}
 <h1>Investment Analysis</h1>
 <p style="font-size: smaller;">Funds currently invested, sorted by 1Y Return. Target performance is to beat inflation of {{ 100*conf.target_yearly_rate }}%</p>
+<p>
+    <span class="total_positions">Total position amount = {{ "{:,.0f}".format(stats['total_positions']) }} 円</span><br/>
+Total invested amount = {{ "{:,.0f}".format(stats['total_invested']) }} 円<br/>
+Total return = {{ "{:,.0f}".format(stats['total_return']) }} 円 ({{ "{:,.2f}".format(stats['total_return_perc']) }} %)
+
+</p>
 <table class="funds_table">
     <thead>
         <tr>
