@@ -269,6 +269,11 @@ class Fund:
             #merge both dict into stats
             stats = {**stats, **vol_stats}
 
+        #regressions
+        trend_stats = self.calculate_advanced_nav_trend(days_back=365)
+        if trend_stats is not None:
+            stats = {**stats, **trend_stats}
+
         return stats
     
 
@@ -453,3 +458,86 @@ class Fund:
             return 'high'
         else:
             return 'very_high'
+        
+
+    @cached(cache)
+    def calculate_advanced_nav_trend(self, days_back=365) -> dict:
+        """
+        Advanced trend analysis using polynomial regression and additional metrics.
+        """
+        import numpy as np
+        from scipy import stats
+        from sklearn.preprocessing import PolynomialFeatures
+        from sklearn.linear_model import LinearRegression
+        from sklearn.metrics import r2_score
+        
+        # Get NAV data (same database query as above)
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=days_back)).strftime('%Y-%m-%d')
+        
+        cur.execute("""
+            SELECT AtDate, NAV 
+            FROM FUND_NAV 
+            WHERE FundID = ? AND AtDate >= ? 
+            ORDER BY AtDate ASC
+        """, (self.fund_id, start_date))
+        
+        rows = cur.fetchall()
+        conn.close()
+        
+        if len(rows) < 10:  # Need more data for advanced analysis
+            return None
+        
+        # Prepare data
+        dates = [datetime.datetime.strptime(row[0], '%Y-%m-%d') for row in rows]
+        navs = np.array([float(row[1]) for row in rows])
+        x_days = np.array([(d - dates[0]).days for d in dates]).reshape(-1, 1)
+        
+        # Linear regression
+        linear_reg = LinearRegression()
+        linear_reg.fit(x_days, navs)
+        linear_predictions = linear_reg.predict(x_days)
+        linear_r2 = r2_score(navs, linear_predictions)
+        
+        # Polynomial regression (degree 2)
+        poly_features = PolynomialFeatures(degree=2)
+        x_poly = poly_features.fit_transform(x_days)
+        poly_reg = LinearRegression()
+        poly_reg.fit(x_poly, navs)
+        poly_predictions = poly_reg.predict(x_poly)
+        poly_r2 = r2_score(navs, poly_predictions)
+        
+        # Statistical tests
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x_days.flatten(), navs)
+        
+        # Volatility analysis
+        daily_returns = np.diff(navs) / navs[:-1] * 100
+        volatility = np.std(daily_returns) * np.sqrt(252)  # Annualized volatility
+        
+        return {
+            'linear_slope': slope,
+            'linear_r_squared': linear_r2,
+            'polynomial_r_squared': poly_r2,
+            'p_value': p_value,
+            'volatility': volatility,
+            'annual_trend_pct': (slope * 365 / navs[0]) * 100,
+            'trend_significance': 'significant' if p_value < 0.05 else 'not_significant',
+            'best_fit': 'polynomial' if poly_r2 > linear_r2 + 0.05 else 'linear',
+            'trend_strength': self._classify_trend_strength(poly_r2)
+        }
+
+    def _classify_trend_strength(self, r_squared):
+        """Classify trend strength based on R-squared value."""
+        if r_squared >= 0.8:
+            return 'very_strong'
+        elif r_squared >= 0.6:
+            return 'strong'
+        elif r_squared >= 0.4:
+            return 'moderate'
+        elif r_squared >= 0.2:
+            return 'weak'
+        else:
+            return 'very_weak'
+    

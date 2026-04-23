@@ -21,4 +21,4 @@ def analysis_page():
     #sort by 1Y return, with those missing the stat at the bottom
     funds = sorted(funds, key=lambda f: f.stats["return_1y"] if "return_1y" in f.stats else float('-inf'), reverse=True) 
 
-    return render_template('analysis.html', funds=funds)
+    return render_template('analysis.html', funds=funds, conf=conf)
