@@ -2,10 +2,10 @@ import datetime
 import sqlite3
 from config import conf
 from enum import Enum
-
+import math
 from cachetools import cached, TTLCache
 
-cache = TTLCache(maxsize=100, ttl=10)
+cache = TTLCache(maxsize=500, ttl=10)
 
 class TransactionType(Enum):
     BUY = "お買付"
@@ -239,7 +239,7 @@ class Fund:
         three_years_ago = today.replace(year=today.year - 3)
 
         
-        return {
+        stats = {
             "latest_nav": self.latest_nav,
             "nav_diff": self.nav_diff,
 
@@ -262,6 +262,15 @@ class Fund:
             "current_value": (self.stats_total_units() * self.latest_nav / 10000) if self.latest_nav else 0.0,
             "unrealized_pnl": ((self.stats_total_units() * self.latest_nav / 10000) - self.stats_invested_amount()) if self.latest_nav else 0.0,
         }
+
+        #add more stats as needed, like volatility
+        vol_stats = self.calculate_volatility(days_back=365, annualized=True)
+        if vol_stats is not None:
+            #merge both dict into stats
+            stats = {**stats, **vol_stats}
+
+        return stats
+    
 
     def stats_total_units(self):
         """
@@ -362,3 +371,85 @@ class Fund:
             return False
         finally:
             conn.close()
+
+
+    @cached(cache)
+    def calculate_volatility(self, days_back=365, annualized=True) -> dict:
+        """
+        Calculate the volatility (standard deviation of returns) over a specified period.
+        
+        Args:
+            days_back: Number of days to look back (default 365 for 1 year)
+            annualized: If True, annualize the volatility (multiply by sqrt(252))
+        
+        Returns:
+            Dict with volatility metrics
+        """
+
+        
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        
+        # Get NAV data for the specified period
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=days_back)).strftime('%Y-%m-%d')
+        
+        cur.execute("""
+            SELECT AtDate, NAV 
+            FROM FUND_NAV 
+            WHERE FundID = ? AND AtDate >= ? 
+            ORDER BY AtDate ASC
+        """, (self.fund_id, start_date))
+        
+        rows = cur.fetchall()
+        conn.close()
+        
+        if len(rows) < 2:
+            return None
+        
+        # Calculate daily returns (percentage change)
+        daily_returns = []
+        nav_values = [float(row[1]) for row in rows]
+        
+        for i in range(1, len(nav_values)):
+            daily_return = (nav_values[i] - nav_values[i-1]) / nav_values[i-1] * 100
+            daily_returns.append(daily_return)
+        
+        if not daily_returns:
+            return None
+        
+        # Calculate mean return
+        mean_return = sum(daily_returns) / len(daily_returns)
+        
+        # Calculate variance
+        variance = sum((return_val - mean_return) ** 2 for return_val in daily_returns) / len(daily_returns)
+        
+        # Calculate standard deviation (volatility)
+        volatility = math.sqrt(variance)
+        
+        # Annualize if requested (multiply by sqrt of trading days per year)
+        if annualized:
+            annualized_volatility = volatility * math.sqrt(252)  # 252 trading days per year
+        else:
+            annualized_volatility = volatility
+        
+        return {
+            'daily_volatility': volatility,
+            'annualized_volatility': annualized_volatility if annualized else None,
+            'mean_daily_return': mean_return,
+            'data_points': len(daily_returns),
+            'period_days': days_back,
+            'volatility_category': self._classify_volatility(annualized_volatility if annualized else volatility)
+        }
+
+    def _classify_volatility(self, volatility):
+        """Classify volatility level for easy interpretation."""
+        if volatility < 5:
+            return 'very_low'
+        elif volatility < 10:
+            return 'low'
+        elif volatility < 15:
+            return 'moderate'
+        elif volatility < 25:
+            return 'high'
+        else:
+            return 'very_high'

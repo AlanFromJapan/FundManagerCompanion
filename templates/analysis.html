@@ -14,6 +14,7 @@
             <th>AUM</th>
             <th>Latest NAV (Δ1d)</th>
             <th>1Y Return</th>
+            <th>Volatility<br/>(daily|yearly)</th>
         </tr>
     </thead>
     <tbody>
@@ -32,6 +33,7 @@
                 (<span class="{{ 'stat_positive' if fund.nav_diff| length > 0 and fund.nav_diff[0]['diffpct'] > 0 else 'stat_negative' }}" style="font-size: smaller;">{{ "{:,.2f}".format(fund.nav_diff[0]["diffpct"]) + "%" if fund.nav_diff and fund.nav_diff|length > 0 else "n/a" }}</span>)
             </td>
             <td class="rightalign {{ 'stat_positive' if fund.stats['return_1y'] > 0 else 'stat_negative' }}">{{ "{:,.2f}".format(fund.stats["return_1y"]) + "%" if "return_1y" in fund.stats else "n/a" }}</td>
+            <td class="rightalign"><span class="{{ 'stat_positive' if fund.stats['daily_volatility'] < 10 else 'stat_negative' }}">{{ "{:,.2f}".format(fund.stats["daily_volatility"]) + "%" if "daily_volatility" in fund.stats else "n/a" }}</span> | <span class="{{ 'stat_positive' if fund.stats['annualized_volatility'] < 10 else 'stat_negative' }}">{{ "{:,.2f}".format(fund.stats["annualized_volatility"]) + "%" if "annualized_volatility" in fund.stats else "n/a" }}</span></td>
         </tr>
         {% endfor %}
 
