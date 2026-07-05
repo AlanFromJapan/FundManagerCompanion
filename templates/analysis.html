@@ -3,6 +3,11 @@
 {% block title %}Investment Analysis{% endblock %}
 
 {% block content %}
+
+<!-- Taken from https://www.w3.org/WAI/ARIA/apg/patterns/table/examples/sortable-table/ -->
+<script src="/js/sortable-table.js" language="javascript"></script>
+<link rel="stylesheet" href="/css/sortable-table.css" type="text/css" />
+
 <h1>Investment Analysis</h1>
 <p style="font-size: smaller;">Funds currently invested, sorted by 1Y Return. Target performance is to beat inflation of {{ 100*conf.target_yearly_rate }}%</p>
 <p>
@@ -11,17 +16,37 @@ Total invested amount = {{ "{:,.0f}".format(stats['total_invested']) }} 円<br/>
 Total return = {{ "{:,.0f}".format(stats['total_return']) }} 円 ({{ "{:,.2f}".format(stats['total_return_perc']) }} %)
 
 </p>
-<table class="funds_table">
+<table class="funds_table sortable">
     <thead>
         <tr>
-            <th style="width:300px;">Fund Name</th>
-            <th style="width:36px;">Details</th>
-            <th>Units</th>
-            <th>AUM</th>
-            <th>Latest NAV (Δ1d)</th>
-            <th>1Y Return</th>
-            <th>Volatility<br/>(daily|yearly)</th>
-            <th>1YTrend</th>
+            <th style="width:300px;">
+                <button>Fund Name<span aria-hidden="true"></span></button>
+            </th>
+            <th style="width:36px;">
+                <button>Details<span aria-hidden="true"></span></button>
+            </th>
+            <th class="num">
+                <button>Units<span aria-hidden="true"></span></button>
+            </th>
+            <th class="num">
+                <button>AUM<span aria-hidden="true"></span></button>
+            </th>
+            <th class="num"><button>
+            Latest NAV (Δ1d)
+            <span aria-hidden="true"></span>
+          </button></th>
+            <th class="num"><button>
+            1Y Return
+            <span aria-hidden="true"></span>
+          </button></th>
+            <th class="num"><button>
+            Volatility<br/>(daily|yearly)
+            <span aria-hidden="true"></span>
+          </button></th>
+            <th><button>
+            1YTrend
+            <span aria-hidden="true"></span>
+          </button></th>
         </tr>
     </thead>
     <tbody>
