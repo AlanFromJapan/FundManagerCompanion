@@ -19,7 +19,7 @@ class YahooFinProvider(NAVProvider):
             soup = BeautifulSoup(page_content, 'html.parser')
 
             # Find the <p> tag with class="price__1VJb"
-            price_tag = soup.find('span', class_="StyledNumber__value__3rXW")
+            price_tag = soup.find('span', class_="_StyledNumber__value_1arhg_9")
             last_price = float(price_tag.get_text(strip=True).replace(',', ''))
             
             last_date = soup.find('time')
@@ -50,20 +50,20 @@ class YahooFinProvider(NAVProvider):
             soup = BeautifulSoup(page_content, 'html.parser')
 
             #find the table of class table__2wv6
-            table = soup.find('table', class_='table__26JH')
+            table = soup.find('table', class_='styles-module-scss-module__001sWW__FundsHistoryContainer__table')
             if table:
                 tbody = table.find('tbody')
                 rows = tbody.find_all('tr')
-                rows = rows[1:]  # Skip the header row
+                #rows = rows[1:]  # Skip the header row
                 if len(rows) > 1:
                     # Get the last row (most recent date)
                     for row in rows:                        
-                        cells = row.find_all('td')
+                        cells = row.find_all(lambda tag: tag.name in( 'td', 'th'))
                         if len(cells) >= 2:
                             # Extract date and price
                             date_str = cells[0].get_text(strip=True)
                             price_str = cells[1].find("span").get_text(strip=True).replace(',', '')
-                            last_date = datetime.strptime(date_str, "%Y年%m月%d日")
+                            last_date = datetime.strptime(date_str, "%Y/%m/%d")
                             last_price = float(price_str)
                             nav_dict[last_date] = last_price
 
