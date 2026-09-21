@@ -82,6 +82,28 @@ td.fund_header{
     font-size: medium;
 }
 
+/* Investment header table */
+table.investment-header {
+    border-collapse: collapse;
+}
+table.investment-header tr, table.investment-header td {
+    border: 1px solid #888;
+    text-align: left;
+    font-size: x-small;
+}
+table.investment-header td:nth-of-type(1)  {
+    /* First column styling */
+    font-weight: bold;
+    background-color: rgb(202, 240, 248);
+}
+table.investment-header tr:nth-of-type(1) td:nth-of-type(2)  {
+    /* First row 2nd cell (total amount number) styling */
+    font-weight: bold;
+    background-color: goldenrod;
+    font-size: medium;
+}
+
+
 /* Screensplit table */
 table.screensplit {
     width: 100%;
