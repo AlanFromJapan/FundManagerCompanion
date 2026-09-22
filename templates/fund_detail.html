@@ -22,11 +22,18 @@
         <th>Codes</th>
         <td>
             {% if fund.codes %}
-                <ul>
+                <table style="border-collapse: collapse; width: 300px;">
+                    <tr>
+                        <th>Code</th>
+                        <th>Value</th>
+                    </tr>
                     {% for code, value in fund.codes.items() %}
-                        <li>{{ code }}: <code>{{ value }}</code></li>
+                        <tr>
+                            <td><code>{{ code }}</code></td>
+                            <td><code>{{ value }}</code></td>
+                        </tr>
                     {% endfor %}
-                </ul>
+                </table>
             {% else %}
                 No codes available
             {% endif %}
