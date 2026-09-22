@@ -623,3 +623,132 @@ def get_overall_stats() -> dict:
     stats['total_return_perc'] = (stats['total_return'] / stats['total_invested'] * 100.0) if stats['total_invested'] > 0 else 0.0
 
     return stats
+
+
+
+
+def csv_import_monex_holdings(file_content_raw) -> list:
+    ''' Load Monex holdings from a CSV file and return as a list of dictionaries. '''
+    result = []
+
+    import csv
+    s = file_content_raw.decode('shift_jis')  # Assuming the CSV is in Shift JIS encoding 
+    reader = csv.DictReader(s.splitlines())
+
+    funds = get_all_funds()
+
+    for row in reader:
+        monex_fund_name = row.get('銘柄名')
+        monex_holding_quantity = int(row.get('保有数'))
+
+        # Get fund ID from name
+        # The Monex file uses the full name of the fund and not code, so we need to find the fund ID based on the full name. This is not optimal but we don't have the full name in the DB, only the code, so we need to do this transcoding here. 
+        fund_id = None
+        for f in funds:
+            #MONEX provides names only and since they are not necessarily the ones we show
+            if "monex_fullname"in f.codes and f.codes["monex_fullname"] == monex_fund_name:
+                fund_id = f.fund_id
+                break
+            #second chance on fund name?
+            elif f.name == monex_fund_name:
+                fund_id = f.fund_id
+                break
+        if not fund_id:
+            #missing transcoding: aborting
+            flash(f'Fund "{monex_fund_name}" not found in the system. Failed importing this holding, moving to next.', 'error')
+            print(f'csv_import_monex_holdings: "{monex_fund_name}" not found in the system. Failed importing this holding, moving to next.')
+            continue
+
+        #add or sum (funds are separated by NISA or not in the file, but not in FMC)
+        # Check if the fund already exists in the result list
+        existing_entry = next((item for item in result if item['fund_id'] == fund_id), None)
+        if existing_entry:
+            existing_entry['holding'] += monex_holding_quantity
+            continue
+        else:
+            result.append({
+                'fund_id': fund_id,
+                'fund_name': monex_fund_name,
+                'holding': monex_holding_quantity
+            })
+
+    return result
+
+
+
+
+def csv_import_monex_transactions(file_content_raw) -> list:
+    ''' Load Monex transactions from a CSV file and return as a list of dictionaries. '''
+
+    result = []
+
+    import csv
+    s = file_content_raw.decode('shift_jis')  # Assuming the CSV is in Shift JIS encoding 
+    reader = csv.DictReader(s.splitlines())
+    funds = get_all_funds()
+    for row in reader:
+        fund_name = row.get('銘柄名')
+        csv_trans_type = row.get('取引区分')
+
+        # Only process purchase transactions for now
+        if csv_trans_type == '買付（累投）':
+            csv_reception_date = str(row.get('受渡日')).replace('/', '-')  # Convert date format if needed to expected "YYYY-MM-DD"
+            csv_quantity = int(row.get('数量'))
+            csv_amount = int(str(row.get('受渡金額')).replace('-', ''))  # Remove commas from the amount
+            csv_price = int(row.get('約定価格'))
+
+            #purchase transaction, insert into result
+            print(f"Found purchase transaction in CSV for fund {fund_name} on {csv_reception_date} with quantity {csv_quantity} and amount {csv_amount}")
+
+            # Get fund ID from name
+            # The Monex file uses the full name of the fund and not code, so we need to find the fund ID based on the full name. This is not optimal but we don't have the full name in the DB, only the code, so we need to do this transcoding here. 
+            fund_id = None
+            for f in funds:
+                if "monex_fullname"in f.codes and f.codes["monex_fullname"] == fund_name:
+                    fund_id = f.fund_id
+                    break
+            if not fund_id:
+                #missing transcoding: aborting
+                flash(f'Fund "{fund_name}" not found in the system. Failed importing this transactions, moving to next.', 'error')
+                continue
+
+            result.append({
+                'fund_id': fund_id,
+                'transaction_type': 'お買付',
+                'reception_date': csv_reception_date,
+                'quantity': csv_quantity,
+                'amount': csv_amount,
+                'price': csv_price
+            })
+
+        #TODO add handling for other transaction types like redemptions!
+
+    return result
+
+
+
+def coding_update_fund_code(fund_id: int, system: str, code: str) -> bool:
+    """Update or insert a fund code into the database."""
+    try:
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+
+        cur.execute(
+            'UPDATE OR IGNORE "FUND_CODE" SET Code = ? WHERE FundID = ? AND System = ?',
+            (code, fund_id, system)
+        )
+
+        cur.execute(
+            'INSERT OR IGNORE INTO "FUND_CODE" (FundID, System, Code) VALUES (?, ?, ?)',
+            (fund_id, system, code)
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Failed to update fund code for FundID {fund_id}: {e}")
+        return False
+    finally:
+        try:
+            conn.close()
+        except:
+            pass

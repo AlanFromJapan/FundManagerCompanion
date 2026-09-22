@@ -1,5 +1,5 @@
 from flask import  flash, render_template, request, Blueprint, send_file, redirect, url_for
-from shared import get_all_funds
+from shared import coding_update_fund_code, get_all_funds
 from datetime import datetime
 from fund import Fund
 
@@ -64,10 +64,17 @@ def admin_page():
                         flash('Database uploaded and overwritten successfully.', 'success')
                     except Exception as e:
                         flash(f'Failed to upload database: {e}', 'error')
+
+        elif request.form.get("submit_button", "?") == "Upload transcoding":
+            reimport_transcoding()
+
+            
         else:
             flash('Unknown action.', 'error')
 
-    funds = get_all_funds(forced_reload=True)  # Refresh fund list
+    #force reload of funds after reimporting transcoding
+    funds = get_all_funds(forced_reload=True)  
+
     return render_template('admin.html', conf=conf, funds=funds)
 
 
@@ -88,4 +95,39 @@ def download_database():
         flash(f'Failed to download database: {e}', 'error')
 
     return redirect(url_for('bp_admin.admin_page'))
-    
+
+
+def reimport_transcoding():
+    """Handle reimporting the transcoding CSV file"""
+    if 'transcoding_file' not in request.files:
+        flash('No file part in the request.', 'error')
+    else:
+        file = request.files['transcoding_file']
+        if file.filename == '':
+            flash('No selected file.', 'error')
+        else:
+            cnt = 0
+            try:
+                import csv
+                from io import StringIO
+                stream = StringIO(file.stream.read().decode("UTF8"), newline='')
+                reader = csv.DictReader(stream, delimiter=',', quotechar='"')
+
+                
+                #skip header row
+                _ = next(reader)
+                rows = [row for row in reader if any(field.strip() for field in row)]
+
+                # Insert transcoding data
+                for row in rows:
+                    fund_id = int(row["FundID"].strip())
+                    if fund_id > 0:
+                        system = str(row["System"].strip())
+                        code = str(row["Code"].strip())
+                        cnt += 1 if coding_update_fund_code(fund_id, system, code) else 0
+
+
+                # Implement your logic to process the CSV rows here
+                flash(f'Transcoding file reimported successfully. {cnt} entries updated.', 'success')
+            except Exception as e:
+                flash(f'Failed to reimport transcoding file on row {cnt} with message: {e}', 'error')

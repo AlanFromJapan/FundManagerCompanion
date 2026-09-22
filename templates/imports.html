@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Imports{% endblock %}
+
+{% block content %}
+
+<table class="imports">
+    <tr class="imports-header">
+        <td colspan="2">Import Data</td>
+    </tr>
+    <tr>
+        <td>Import transactions</td>
+        <td>
+            <form method="post" action="/transactions/csvimportMonex" enctype="multipart/form-data" id="csv-import-form">
+                <input type="file" id="csv_file" name="csv_file" accept=".csv"
+                    style="display:none"
+                    onchange="document.getElementById('csv-import-form').submit()">
+                <label for="csv_file" style="cursor:pointer">Import CSV TRANSACTIONS (Monex) <img style="vertical-align:text-bottom;" src="/images/ico_monex.ico" alt="Monex Icon" /></label>
+            </form>
+
+        </td>
+    </tr>
+    <tr class="imports-header">
+        <td colspan="2">Compare Data</td>
+    </tr>
+    <tr>
+        <td>
+            FMC latest positions versus Monex positions CSV
+        </td>
+        <td>
+            <form method="post" action="/imports/csvimportMonexHoldings" enctype="multipart/form-data" id="csv-import-holdings-form">
+                <input type="file" id="csv_file_holdings" name="csv_file" accept=".csv"
+                    style="display:none"
+                    onchange="document.getElementById('csv-import-holdings-form').submit()">
+                <label for="csv_file_holdings" style="cursor:pointer">Import CSV HOLDINGS (Monex) <img style="vertical-align:text-bottom;" src="/images/ico_monex.ico" alt="Monex Icon" /></label>
+            </form>            
+        </td>
+    </tr>
+</table>
+
+{% if holdings %}
+<br/>
+<br/>
+<h2>Results:</h2>
+<table>
+    <tr>
+        <th>Fund</th>
+        <th>Holding quantity FMC</th>
+        <th>Holding quantity Monex</th>
+        <th>Difference</th>
+    </tr>
+    {% for holding in holdings %}
+    <tr class="{% if holding.difference == 0 %}stat_neutral{% else %}{% if holding.difference > 0 %}stat_difference_more{% else %}stat_difference_less{% endif %}{% endif %}">
+        <td><a href="/funds/{{ holding.fund_id }}">[{{ holding.fund_id }}] {{ holding.fund }}</a></td>
+        <td>{{ "{:,.0f}".format(holding.holding) }}</td>
+        <td>{{ "{:,.0f}".format(holding.monex_holding) }}</td>
+        <td>{{ "{:+,.0f}".format(holding.difference) if holding.difference !=0 else "-" }} {{ "({:+,.0f}%)".format(holding.difference / holding.holding * 100 if holding.holding != 0 else 0) if holding.difference !=0 else "" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}

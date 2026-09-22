@@ -154,6 +154,10 @@ table.noborder th, table.noborder td {
 .stat_negative { color: red; }
 .stat_warning { color: orange; }
 
+.stat_neutral { color: gray; }
+.stat_difference_less { color: blue; }
+.stat_difference_more { color: darkred; }
+
 /* All funds screen */
 .total_positions {
     font-weight: bold;
@@ -221,4 +225,19 @@ summary {
     cursor: pointer;
     font-weight: bold;
     color: dodgerblue;
+}
+
+/* Imports page styles */
+
+table.imports {
+    width: 100%;
+    border: 1px solid lightgrey;
+}
+table.imports td, table.imports th, table.imports tr {
+    border: 1px solid lightgrey;
+}
+
+table.imports tr.imports-header {
+    font-weight: bold;
+    background-color: lightgoldenrodyellow;
 }

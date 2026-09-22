@@ -63,20 +63,42 @@
 <div class="visual-frame">
     <h2>⛔☠️☠️ REAL DANGEROUS THINGS ☠️☠️⛔</h2>
     <p>Think twice before clicking.</p>
-    <label for="deleteFund">Select Fund to Delete:</label>
-    <select id="deleteFund" name="deleteFund">
-        {% for fund in funds %}
-            <option value="{{ fund.fund_id }}">{{ fund.name }}</option>
-        {% endfor %}
-    </select>
-    ⚠️
-    <input 
+    <table>
+        <tr>
+            <th>Select Fund to Delete</th>
+            <td>
+                
+                <select id="deleteFund" name="deleteFund">
+                    {% for fund in funds %}
+                        <option value="{{ fund.fund_id }}">{{ fund.name }}</option>
+                    {% endfor %}
+                </select>
+                ⚠️
+                <input 
+                type="submit" 
+                name="submit_button" 
+                onClick="clickConfirm('action_delete', 
+                    document.getElementById('deleteFund').value, 
+                    '⚠️⚠️⚠️ Are you sure you want to delete this fund ['+document.getElementById('deleteFund').options[document.getElementById('deleteFund').selectedIndex].text+'] ?');" 
+                value="Delete fund"></input>
+
+
+            </td>
+        </tr>
+        <tr>
+            <th>Reimport transcoding file</th>
+            <td>
+                    <input type="file" id="transcoding_file" name="transcoding_file" accept=".csv"></input>
+
+                <input 
     type="submit" 
     name="submit_button" 
-    onClick="clickConfirm('action_delete', 
-        document.getElementById('deleteFund').value, 
-        '⚠️⚠️⚠️ Are you sure you want to delete this fund ['+document.getElementById('deleteFund').options[document.getElementById('deleteFund').selectedIndex].text+'] ?');" 
-    value="Delete fund"></input>
+    onClick="return clickConfirmInput('⚠️⚠️⚠️ Are you sure you want to upload transcoding data?\nDid you make a backup before?'); " 
+    value="Upload transcoding"></input>
+
+            </td>
+        </tr>
+    </table>
 </div>
 
 </form>
