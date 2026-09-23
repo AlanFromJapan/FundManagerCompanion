@@ -3,3 +3,7 @@ bs4
 requests
 cachetools
 openai
+# for regression analysis
+numpy
+scipy
+scikit-learn

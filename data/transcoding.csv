@@ -50,3 +50,10 @@ FundID,System,Code
 10,ISIN,JP90C0003106
 10,toushinkyokai,47311007
 15,monex_fullname,ニッセイ・Ｓ日本半導体株式インデックスファンド＜購入・換金手数料なし＞
+1,monex_fullname,グローバル・ハイインカム・ストック・ファンド
+10,monex_fullname,マネックス・日本成長株ファンド
+2,monex_fullname,日本トレンド・セレクト　ハイパー・ウェイブ
+4,monex_fullname,ＨＳＢＣ　チャイナ　オープン
+8,monex_fullname,ＳＢＩ・ＵＴＩインドインフラ関連株式ファンド
+11,monex_fullname,ｅＭＡＸＩＳ　Ｎｅｏ　バーチャルリアリティ
+17,monex_fullname,ｅＭＡＸＩＳ　Ｓｌｉｍ　バランス（８資産均等型）

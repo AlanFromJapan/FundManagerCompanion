@@ -47,7 +47,27 @@
         </table>
     </div>
 {%- endmacro %}
+
+{% macro investment_header() -%}
     
+<table class="investment-header">
+    <tr>
+        <td>Total position amount</td>
+        <td>{{ "{:,.0f}".format(stats['total_positions']) }} 円</td>
+    </tr>
+    <tr>
+        <td>Total invested amount</td>
+        <td>{{ "{:,.0f}".format(stats['total_invested']) }} 円</td>
+    </tr>
+    <tr>
+        <td>Total return</td>
+        <td>{{ "{:,.0f}".format(stats['total_return']) }} 円 ({{ "{:+,.2f}".format(stats['total_return_perc']) }} %)</td>
+    </tr>
+</table>
+
+{%- endmacro %}
+
+
     <header>
         {% if not isProd %} 
         <div style="background-color: brown; text-align: center; height: 50px;">
@@ -64,8 +84,9 @@
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('show_funds_page') }}">Funds</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_transactions.transactions_page') }}">Transactions</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_holdings.holdings_page') }}">Holdings</a></li>
+                <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_analysis.analysis_page') }}">Analysis</a></li>
+                <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_imports.imports_page') }}">Imports</a></li>
                 <li style="display: inline; margin-right: 1em;"><a href="{{ url_for('bp_admin.admin_page') }}">Admin</a></li>
-
             </ul>
         </nav>
     </header>

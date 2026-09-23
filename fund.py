@@ -2,10 +2,10 @@ import datetime
 import sqlite3
 from config import conf
 from enum import Enum
-
+import math
 from cachetools import cached, TTLCache
 
-cache = TTLCache(maxsize=100, ttl=10)
+cache = TTLCache(maxsize=500, ttl=10)
 
 class TransactionType(Enum):
     BUY = "お買付"
@@ -42,7 +42,7 @@ class TransactionType(Enum):
                 return "Other"
 
 class Fund:
-    def __init__(self, fund_id, name, currency):
+    def __init__(self, fund_id, name, currency, latest_units=0):
         self.fund_id = fund_id
         self.name = name
         self.currency = currency
@@ -50,18 +50,19 @@ class Fund:
         self.nav = {}
         self.dividends = None
         self.transactions = []
+        self.latest_units = latest_units
 
 
     @classmethod
     def from_db_row(cls, row):
-        # Assumes row is (FundID, Name, Currency)
-        return cls(row[0], row[1], row[2])
+        # Assumes row is (FundID, Name, Currency, LatestUnits)
+        return cls(row[0], row[1], row[2], row[3])
 
 
 
 
     def __repr__(self):
-        return f"<Fund id={self.fund_id} name={self.name} currency={self.currency}>"
+        return f"<Fund id={self.fund_id} name={self.name} currency={self.currency} latest_units={self.latest_units}>"
 
     @property
     def nav_sorted(self):
@@ -238,7 +239,7 @@ class Fund:
         three_years_ago = today.replace(year=today.year - 3)
 
         
-        return {
+        stats = {
             "latest_nav": self.latest_nav,
             "nav_diff": self.nav_diff,
 
@@ -261,6 +262,20 @@ class Fund:
             "current_value": (self.stats_total_units() * self.latest_nav / 10000) if self.latest_nav else 0.0,
             "unrealized_pnl": ((self.stats_total_units() * self.latest_nav / 10000) - self.stats_invested_amount()) if self.latest_nav else 0.0,
         }
+
+        #add more stats as needed, like volatility
+        vol_stats = self.calculate_volatility(days_back=365, annualized=True)
+        if vol_stats is not None:
+            #merge both dict into stats
+            stats = {**stats, **vol_stats}
+
+        #regressions
+        trend_stats = self.calculate_advanced_nav_trend(days_back=365)
+        if trend_stats is not None:
+            stats = {**stats, **trend_stats}
+
+        return stats
+    
 
     def stats_total_units(self):
         """
@@ -311,7 +326,7 @@ class Fund:
         try:
             return ((final_nav - initial_nav) / initial_nav - risk_free_rate) * 100.0
         except Exception as e:
-            print(f"Error calculating NAV return in stats_nav_return(): {e}")
+            print(f"Error calculating NAV return in stats_nav_return() for fund {self.name} (ID={self.fund_id}): {e}")
             return -99999.0
     
 
@@ -324,7 +339,7 @@ class Fund:
         try:
             return ((final_nav / initial_nav) ** (1 / years) - 1) * 100.0
         except Exception as e:
-            print(f"Error calculating CAGR in stats_cagr(): {e}")
+            print(f"Error calculating CAGR in stats_cagr() for fund {self.name} (ID={self.fund_id}): {e}")
             return -99999.0
     
 
@@ -361,3 +376,168 @@ class Fund:
             return False
         finally:
             conn.close()
+
+
+    @cached(cache)
+    def calculate_volatility(self, days_back=365, annualized=True) -> dict:
+        """
+        Calculate the volatility (standard deviation of returns) over a specified period.
+        
+        Args:
+            days_back: Number of days to look back (default 365 for 1 year)
+            annualized: If True, annualize the volatility (multiply by sqrt(252))
+        
+        Returns:
+            Dict with volatility metrics
+        """
+
+        
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        
+        # Get NAV data for the specified period
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=days_back)).strftime('%Y-%m-%d')
+        
+        cur.execute("""
+            SELECT AtDate, NAV 
+            FROM FUND_NAV 
+            WHERE FundID = ? AND AtDate >= ? 
+            ORDER BY AtDate ASC
+        """, (self.fund_id, start_date))
+        
+        rows = cur.fetchall()
+        conn.close()
+        
+        if len(rows) < 2:
+            return None
+        
+        # Calculate daily returns (percentage change)
+        daily_returns = []
+        nav_values = [float(row[1]) for row in rows]
+        
+        for i in range(1, len(nav_values)):
+            daily_return = (nav_values[i] - nav_values[i-1]) / nav_values[i-1] * 100
+            daily_returns.append(daily_return)
+        
+        if not daily_returns:
+            return None
+        
+        # Calculate mean return
+        mean_return = sum(daily_returns) / len(daily_returns)
+        
+        # Calculate variance
+        variance = sum((return_val - mean_return) ** 2 for return_val in daily_returns) / len(daily_returns)
+        
+        # Calculate standard deviation (volatility)
+        volatility = math.sqrt(variance)
+        
+        # Annualize if requested (multiply by sqrt of trading days per year)
+        if annualized:
+            annualized_volatility = volatility * math.sqrt(252)  # 252 trading days per year
+        else:
+            annualized_volatility = volatility
+        
+        return {
+            'daily_volatility': volatility,
+            'annualized_volatility': annualized_volatility if annualized else None,
+            'mean_daily_return': mean_return,
+            'data_points': len(daily_returns),
+            'period_days': days_back,
+            'volatility_category': self._classify_volatility(annualized_volatility if annualized else volatility)
+        }
+
+    def _classify_volatility(self, volatility):
+        """Classify volatility level for easy interpretation."""
+        if volatility < 5:
+            return 'very_low'
+        elif volatility < 10:
+            return 'low'
+        elif volatility < 15:
+            return 'moderate'
+        elif volatility < 25:
+            return 'high'
+        else:
+            return 'very_high'
+        
+
+    @cached(cache)
+    def calculate_advanced_nav_trend(self, days_back=365) -> dict:
+        """
+        Advanced trend analysis using polynomial regression and additional metrics.
+        """
+        import numpy as np
+        from scipy import stats
+        from sklearn.preprocessing import PolynomialFeatures
+        from sklearn.linear_model import LinearRegression
+        from sklearn.metrics import r2_score
+        
+        # Get NAV data (same database query as above)
+        conn = sqlite3.connect(conf['DB_PATH'])
+        cur = conn.cursor()
+        
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=days_back)).strftime('%Y-%m-%d')
+        
+        cur.execute("""
+            SELECT AtDate, NAV 
+            FROM FUND_NAV 
+            WHERE FundID = ? AND AtDate >= ? 
+            ORDER BY AtDate ASC
+        """, (self.fund_id, start_date))
+        
+        rows = cur.fetchall()
+        conn.close()
+        
+        if len(rows) < 10:  # Need more data for advanced analysis
+            return None
+        
+        # Prepare data
+        dates = [datetime.datetime.strptime(row[0], '%Y-%m-%d') for row in rows]
+        navs = np.array([float(row[1]) for row in rows])
+        x_days = np.array([(d - dates[0]).days for d in dates]).reshape(-1, 1)
+        
+        # Linear regression
+        linear_reg = LinearRegression()
+        linear_reg.fit(x_days, navs)
+        linear_predictions = linear_reg.predict(x_days)
+        linear_r2 = r2_score(navs, linear_predictions)
+        
+        # Polynomial regression (degree 2)
+        poly_features = PolynomialFeatures(degree=2)
+        x_poly = poly_features.fit_transform(x_days)
+        poly_reg = LinearRegression()
+        poly_reg.fit(x_poly, navs)
+        poly_predictions = poly_reg.predict(x_poly)
+        poly_r2 = r2_score(navs, poly_predictions)
+        
+        # Statistical tests
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x_days.flatten(), navs)
+        
+        # Volatility analysis
+        daily_returns = np.diff(navs) / navs[:-1] * 100
+        volatility = np.std(daily_returns) * np.sqrt(252)  # Annualized volatility
+        
+        return {
+            'linear_slope': slope,
+            'linear_r_squared': linear_r2,
+            'polynomial_r_squared': poly_r2,
+            'p_value': p_value,
+            'volatility': volatility,
+            'annual_trend_pct': (slope * 365 / navs[0]) * 100,
+            'trend_significance': 'significant' if p_value < 0.05 else 'not_significant',
+            'best_fit': 'polynomial' if poly_r2 > linear_r2 + 0.05 else 'linear',
+            'trend_strength': self._classify_trend_strength(poly_r2)
+        }
+
+    def _classify_trend_strength(self, r_squared):
+        """Classify trend strength based on R-squared value."""
+        if r_squared >= 0.8:
+            return 'very_strong'
+        elif r_squared >= 0.6:
+            return 'strong'
+        elif r_squared >= 0.4:
+            return 'moderate'
+        elif r_squared >= 0.2:
+            return 'weak'
+        else:
+            return 'very_weak'
+    
