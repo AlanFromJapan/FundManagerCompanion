@@ -24,16 +24,31 @@
         <td colspan="2">Compare Data</td>
     </tr>
     <tr>
-        <td>
+        <td rowspan="2">
             FMC latest positions versus Monex positions CSV
         </td>
         <td>
-            <form method="post" action="/imports/csvimportMonexHoldings" enctype="multipart/form-data" id="csv-import-holdings-form">
-                <input type="file" id="csv_file_holdings" name="csv_file" accept=".csv"
+            <form method="post" action="/imports/csvimportMonexHoldingsCompare" enctype="multipart/form-data" id="csv-import-holdings-form">
+                <input type="file" id="csv_file_holdings_compare" name="csv_file" accept=".csv"
                     style="display:none"
                     onchange="document.getElementById('csv-import-holdings-form').submit()">
-                <label for="csv_file_holdings" style="cursor:pointer">Import CSV HOLDINGS (Monex) <img style="vertical-align:text-bottom;" src="/images/ico_monex.ico" alt="Monex Icon" /></label>
+                <label for="csv_file_holdings_compare" style="cursor:pointer">Compare Monex CSV HOLDINGS (no update)  <img style="vertical-align:text-bottom;" src="/images/ico_monex.ico" alt="Monex Icon" /></label>
             </form>            
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Align FMC holdings with Monex CSV (update FMC holdings by creating reinvestment orders)
+            <form method="post" action="/imports/csvimportMonexHoldingsUpdate" enctype="multipart/form-data" id="csv-import-holdings-update-form">
+                <input type="file" id="csv_file_holdings_update" name="csv_file" accept=".csv"
+                    onchange="this.form.submit();">
+                <input 
+                    type="submit" 
+                    name="submit_button" 
+                    onClick="return clickConfirmInput('⚠️⚠️⚠️ Are you sure you want to update positions?\nDid you make a backup before?'); " 
+                    value="Upload positions"></input>
+                
+            </form>              
         </td>
     </tr>
 </table>
