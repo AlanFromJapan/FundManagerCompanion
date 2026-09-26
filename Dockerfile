@@ -2,6 +2,9 @@ FROM python:3.12-alpine
 
 WORKDIR /app
 
+# Install build dependencies for Python packages (scikit-learn)
+RUN apk update && apk add python3-dev gcc libc-dev g++
+
 # Copy requirements first to leverage Docker layer caching
 COPY requirements.txt .
 

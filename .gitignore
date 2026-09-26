@@ -199,6 +199,7 @@ data/*.csv
 data/*.ods
 data/*.db
 !data/transcoding.csv
+docker_run.sh
 
 #venv
 bin/
