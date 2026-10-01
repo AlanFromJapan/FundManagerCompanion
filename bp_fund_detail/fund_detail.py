@@ -1,4 +1,4 @@
-from flask import  render_template, request, Blueprint
+from flask import  render_template, request, Blueprint, session
 from shared import get_all_funds, import_latest_nav, import_history_nav, import_whole_nav
 from config import conf
 
@@ -47,4 +47,16 @@ def show_fund_page(fund_id):
 
 
 
-    return render_template('fund_detail.html', fund=fund, chartData=(values, labels, MAX_NAV_LIMIT, MAX_NAV_SHOWN), conf=conf)
+    return render_template('fund_detail.html', fund=fund, chartData=(values, labels, MAX_NAV_LIMIT, MAX_NAV_SHOWN), conf=conf, prevnext=get_prev_next_fund(fund.fund_id))
+
+
+def get_prev_next_fund( current_fund_id):
+    pos = session.get('latest_positions', [])
+    fund_ids = [f["fund_id"] for f in pos]
+
+    if current_fund_id not in fund_ids:
+        return None, None
+    idx = fund_ids.index(current_fund_id)
+    prev_fund = pos[idx - 1] if idx > 0 else pos[-1]
+    next_fund = pos[idx + 1] if idx < len(pos) - 1 else pos[0]
+    return prev_fund["fund_id"] , next_fund["fund_id"]

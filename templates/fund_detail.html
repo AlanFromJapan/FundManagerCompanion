@@ -3,7 +3,7 @@
 {% block title %}Funds Detail - {{ fund.name }}{% endblock %}
 
 {% block content_left %}
-<h2>Fund Details</h2>
+<h2>Fund Details <a href="{{ url_for('bp_fund_details.show_fund_page', fund_id=prevnext[0]) }}">◀️</a> <a href="{{ url_for('bp_fund_details.show_fund_page', fund_id=prevnext[1]) }}">▶️</a></h2>
 <h3>Overview 📜</h3>
 <table>
     <tr>

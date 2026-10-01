@@ -1,7 +1,7 @@
 
 
 import os
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, session
 from config import conf 
 
 from nav.yahoo_fin_provider import YahooFinProvider
@@ -79,6 +79,9 @@ def show_funds_page():
         elif 'update_whole_nav' in request.form:
             print("Updating whole NAV for all funds from Investment Trust Association")
             import_whole_nav(funds)
+
+    #store in session for later use (fund details next/prev)
+    session['latest_positions'] = pos
 
     return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf, eom=eom_sum, inv=inv_eom)
 
