@@ -21,6 +21,11 @@ Then, considering my investment goal and risk appetite, suggest me 3 funds that 
 
 """
 
+    #if defined, use the AI prompt for analysis from the config
+    if conf.ai_prompt_for_analysis:
+        prompt = conf.ai_prompt_for_analysis + "\n\n" 
+
+    # Add the funds data
     for fund in get_all_funds():
         if fund.latest_units == 0:
             continue
