@@ -17,6 +17,9 @@ def admin_page():
             conf.risk_free_rate = float(request.form.get('riskFreeRate', 0.005))
             conf.target_yearly_rate = float(request.form.get('targetYearlyRate', 0.03))
             conf.openai_api_key = request.form.get('openai_token', '').strip()
+
+            conf.ai_prompt_for_analysis = request.form.get('aiPromptAnalysis', '').strip()
+
             flash('Settings saved successfully.', 'success')
 
         elif request.form.get("submit_button", "?") == "Delete fund":

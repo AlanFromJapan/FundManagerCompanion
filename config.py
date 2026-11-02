@@ -9,6 +9,24 @@ class Config(dict):
         self.__risk_free_rate = None 
         self.__target_yearly_rate = None
         self.__openai_api_key = None 
+        self.__ai_prompt_for_analysis = None
+
+    @property
+    def ai_prompt_for_analysis(self):
+        if self.__ai_prompt_for_analysis is not None:
+            return self.__ai_prompt_for_analysis
+
+        self.__ai_prompt_for_analysis = self.get_DB_value('AIPromptForAnalysis', default=None)
+        return self.__ai_prompt_for_analysis
+
+
+    @ai_prompt_for_analysis.setter
+    def ai_prompt_for_analysis(self, value):
+        if not value:
+            value = ''
+
+        self.set_DB_value('AIPromptForAnalysis', value)
+        self.__ai_prompt_for_analysis = value
 
 
     @property
@@ -65,7 +83,7 @@ class Config(dict):
     @openai_api_key.setter
     def openai_api_key(self, value):
         if not value:
-            raise ValueError("OpenAI API key cannot be empty.")
+            value = ''
         
         self.set_DB_value('OpenAI_API_Key', value)
         self.__openai_api_key = value
