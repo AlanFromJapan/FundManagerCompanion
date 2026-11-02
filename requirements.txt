@@ -7,3 +7,6 @@ openai
 numpy
 scipy
 scikit-learn
+
+#for drawings
+matplotlib

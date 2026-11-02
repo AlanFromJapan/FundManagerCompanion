@@ -21,6 +21,11 @@
 
     <label for="targetYearlyRate">Target Yearly Rate (base 1 not % -> for 3% set at 0.03):</label>
     <input type="text" id="targetYearlyRate" name="targetYearlyRate" placeholder="Enter target yearly rate (>0)" value="{{ conf.target_yearly_rate }}" />
+
+    <hr width="50%"/>
+    <h2>AI Prompts</h2>
+    <label for="aiPromptAnalysis">Prompt for portfolio analysis and suggestions:</label>
+    <textarea id="aiPromptAnalysis" name="aiPromptAnalysis" placeholder="Enter AI prompt" rows="8">{{ conf.ai_prompt_for_analysis }}</textarea>
 </div>
 
 
