@@ -50,7 +50,7 @@ class YahooFinProvider(NAVProvider):
             soup = BeautifulSoup(page_content, 'html.parser')
 
             #find the table of class table__2wv6
-            table = soup.find('table', class_='styles-module-scss-module__001sWW__FundsHistoryContainer__table')
+            table = soup.find('table', class_='_001sWW_FundsHistoryContainer__table')
             if table:
                 tbody = table.find('tbody')
                 rows = tbody.find_all('tr')
@@ -66,7 +66,8 @@ class YahooFinProvider(NAVProvider):
                             last_date = datetime.strptime(date_str, "%Y/%m/%d")
                             last_price = float(price_str)
                             nav_dict[last_date] = last_price
-
+            else:
+                print(f"No table found for {fund.codes['yahoo_finance']} at URL [{request_url}]")
         except Exception as e:
             print(f"Error fetching NAV for {fund.codes['yahoo_finance']} at URL [{request_url}]: {e}")
         
