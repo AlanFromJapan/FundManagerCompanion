@@ -9,6 +9,7 @@ bp_analysis = Blueprint('bp_analysis', __name__)
 
 
 def get_ai_prompt():
+    use_default = True
     prompt = """Below is a table with the name of the funds I invested in. 
 First column is the name of the fund, second column is the ISIN, third column is the Yahoo Finance (also 投資信託協会) code, the fourth column is the number of units I hold, and the fifth is the latest NAV for 10,000 units.
 My investment strategy is long term investment with a yearly target return of 10%. I can tolerate a loss of 5% yearly exceptionally.
@@ -24,6 +25,7 @@ Then, considering my investment goal and risk appetite, suggest me 3 funds that 
     #if defined, use the AI prompt for analysis from the config
     if conf.ai_prompt_for_analysis:
         prompt = conf.ai_prompt_for_analysis + "\n\n" 
+        use_default = False
 
     # Add the funds data
     for fund in get_all_funds():
@@ -31,7 +33,7 @@ Then, considering my investment goal and risk appetite, suggest me 3 funds that 
             continue
         prompt += f"{fund.name}\t{fund.codes['ISIN'] if 'ISIN' in fund.codes else ''}\t{fund.codes['yahoo_finance'] if 'yahoo_finance' in fund.codes else ''}\t{fund.latest_units}\t{int(fund.latest_nav) if fund.latest_nav else 'n/a'}\n"
 
-    return prompt
+    return prompt, use_default
 
 @bp_analysis.route('/analysis', methods=['GET'])
 def analysis_page():
@@ -48,4 +50,5 @@ def analysis_page():
     #sort by 1Y return, with those missing the stat at the bottom
     funds = sorted(funds, key=lambda f: f.stats["return_1y"] if "return_1y" in f.stats else float('-inf'), reverse=True) 
 
-    return render_template('analysis.html', funds=funds, stats=stats, conf=conf, ai_prompt=get_ai_prompt())
+    ai_prompt, use_default = get_ai_prompt()
+    return render_template('analysis.html', funds=funds, stats=stats, conf=conf, ai_prompt=ai_prompt, use_ai_prompt_default=use_default)

@@ -70,8 +70,17 @@
     </tbody>
 </table>
 
+<!-- ========================================================= AI Analysis Section ========================================================= -->
+<hr width="50%"/>
+
 <h1>Ask your AI buddy</h1>
 <h2>Prompt to copy paste</h2>
+{% if use_ai_prompt_default %}
+<p style="font-size: x-small;">Using default prompt for AI analysis - override in the Admin page.</p>
+{% else %}
+<p style="font-size: x-small;">Using custom prompt for AI analysis.</p>
+{% endif %}
+
 <textarea rows="20" style="width: 100%;">
 {{ai_prompt}}
 </textarea>
