@@ -7,7 +7,18 @@ def absolute_perf_comparison():
     conn = sqlite3.connect("./../data/data.db")
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM FUND_NAV as NAV WHERE 1=1 ORDER BY AtDate DESC LIMIT 6000;")
+        cursor.execute("""
+SELECT 
+    NAV.*, F.name
+FROM 
+    FUND_NAV as NAV 
+    JOIN FUND as F ON F.FundId = NAV.FundId
+
+WHERE 
+    1=1 
+
+    ORDER BY AtDate DESC LIMIT 6000;
+""")
         rows = cursor.fetchall()
 
         navs = {}
@@ -17,7 +28,8 @@ def absolute_perf_comparison():
             if date not in navs:
                 navs[date] = {}
 
-            fund_code = int(row[0])
+            #fund_code = int(row[0])
+            fund_code = str(row[4])
             nav = int(row[3])
 
             navs[date][fund_code] = {"NAV": nav}
@@ -121,12 +133,14 @@ def plot_normalized_perf_comparison(navs):
     plt.xlabel("Date")
     plt.ylabel("Normalized Performance")
     plt.title("Normalized Performance Comparison")
-    #plt.legend()
+    plt.legend( loc="best", prop={'size': 6} )
     #plt.savefig("normalized_performance_comparison.png")
     plt.show()
 
 
 if __name__ == "__main__":
+
+    plt.rc("font", family="Noto Sans CJK JP")
     navs = absolute_perf_comparison()
     #plot_absolute_perf_comparison(navs)
     plot_normalized_perf_comparison(navs)
