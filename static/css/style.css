@@ -150,6 +150,19 @@ table.noborder th, table.noborder td {
     border: none;
 }
 
+/* Table last n days holdings */ 
+table.last-n-days-holdings {
+    border-collapse: collapse;
+    width: 100%;
+}
+table.last-n-days-holdings th, table.last-n-days-holdings td {
+    text-align: right;
+    font-size: x-small;
+}
+table.last-n-days-holdings tr:nth-of-type(1) td {
+    background-color: #f0f0f0;
+}
+
 /* Stats styles */
 .stat_positive { color: green; }
 .stat_negative { color: red; }

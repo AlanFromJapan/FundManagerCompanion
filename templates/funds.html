@@ -11,7 +11,21 @@
     <tbody>
         <tr>
             <td>{{ investment_header() }}</td>
-            <td class="rightalign"><a href="/funds/register" class="button" style="margin-bottom: 1em; display: inline-block;">🌱 Register New Fund</a></td>
+            <td class="rightalign"><a href="/funds/register" class="button" style="margin-bottom: 1em; display: inline-block;">🌱 Register New Fund</a><br/>
+            <h2>Holdings (Last 5 Days)</h2>
+            <table class="last-n-days-holdings">
+                <tr>
+                    {% for h in holdings_prev_days %}
+                    <td>{{ h.at_date }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for h in holdings_prev_days %}
+                    <td class="{{ 'stat_positive' if h.delta >= 0 else 'stat_negative' }}">{{ "{:,.0f}".format(h.total_holding) }}&nbsp;{{ "▲" if h.delta >= 0 else "▼" }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+            </td>
         </tr>
     </tbody>
 </table>

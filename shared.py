@@ -752,3 +752,43 @@ def coding_update_fund_code(fund_id: int, system: str, code: str) -> bool:
             conn.close()
         except:
             pass
+
+
+
+def get_holdings_total_previous_days(days :int = 5):
+    """ Get the holdings total for the past given number of days """
+    holdings = []
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    cur.execute("""
+Select 
+	P.AtDate,
+	SUM(P.Unit * N.NAV / 10000) as TotalHolding
+from 
+	POSITION as P 
+	JOIN FUND_NAV as N ON P.FundId = N.FundId AND P.AtDate = N.AtDate
+WHERE	
+	1=1
+	AND P.Unit <> 0
+	AND P.AtDate > date('now', '-' || ? || ' days')
+GROUP BY P.AtDate
+ORDER BY P.AtDate ASC
+ """, (abs(days) + 5, ))
+    #+5 above to ensure we have enough data even if some days have no holdings
+
+    rows = cur.fetchall()
+    for row in rows:
+        holdings.append({
+            'at_date': row[0],
+            'total_holding': int(row[1]),
+            'delta': 0
+        })
+    conn.close()
+
+    #calculate the delta for each day
+    for i in range(1, len(holdings)):
+        holdings[i]['delta'] = holdings[i]['total_holding'] - holdings[i-1]['total_holding']
+
+    #clip the result to the requested number of days
+    return holdings[-abs(days):]

@@ -7,7 +7,7 @@ from config import conf
 from nav.yahoo_fin_provider import YahooFinProvider
 nav_provider = YahooFinProvider()
 
-from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom_sum, get_investments_eom, get_overall_stats
+from shared import get_all_funds, import_latest_nav, get_latest_positions, import_history_nav, import_whole_nav, get_holdings_eom_sum, get_investments_eom, get_overall_stats, get_holdings_total_previous_days
 
 from bp_fund_detail.fund_detail import bp_fund_details
 from bp_admin.admin import bp_admin
@@ -59,6 +59,8 @@ def show_funds_page():
 
     eom_sum = get_holdings_eom_sum(limit=eom_months_display)
     inv_eom = get_investments_eom(limit=eom_months_display)
+    holdings_prev_days = get_holdings_total_previous_days(days=5)  # Get holdings for the past 5 days
+    
 
     stats = get_overall_stats()
 
@@ -83,7 +85,7 @@ def show_funds_page():
     #store in session for later use (fund details next/prev)
     session['latest_positions'] = pos
 
-    return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf, eom=eom_sum, inv=inv_eom)
+    return render_template('funds.html', pos=pos, funds=funds, stats=stats, conf=conf, eom=eom_sum, inv=inv_eom, holdings_prev_days=holdings_prev_days)
 
 
 
