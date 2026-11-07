@@ -1,5 +1,5 @@
 from flask import  flash, render_template, request, Blueprint, send_file, redirect, url_for
-from shared import coding_update_fund_code, get_all_funds
+from shared import coding_update_fund_code, get_all_funds, delete_todays_transactions
 from datetime import datetime
 from fund import Fund
 
@@ -71,6 +71,13 @@ def admin_page():
         elif request.form.get("submit_button", "?") == "Upload transcoding":
             reimport_transcoding()
 
+        elif request.form.get("submit_button", "?") == "Delete TODAY's Transactions":
+            # Handle form submission FOR DELETE TODAY'S TRANSACTIONS
+            try:                
+                delete_todays_transactions()
+                flash('TODAY\'s transactions deleted successfully.', 'success')
+            except Exception as e:
+                flash(f'Failed to delete TODAY\'s transactions: {e}', 'error')
             
         else:
             flash('Unknown action.', 'error')

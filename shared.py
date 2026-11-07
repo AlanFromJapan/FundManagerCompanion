@@ -792,3 +792,58 @@ ORDER BY P.AtDate ASC
 
     #clip the result to the requested number of days
     return holdings[-abs(days):]
+
+
+
+def xact_save_to_db(fund_id, trans_type, reception_date, quantity, amount, unitprice, allow_duplicates=False):
+    """Saves a transaction to the database and recalculates positions + basic sanity checks. """
+
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+
+    try:
+        # first check if not already exists a transaction with same fund_id, reception_date, quantity
+        cur.execute('SELECT COUNT(*) FROM XACT WHERE FundID = ? AND TradeDate = ? AND Unit = ? AND XactType = ?',
+                    (fund_id, reception_date, quantity, trans_type))
+        if cur.fetchone()[0] == 0 or allow_duplicates:
+            # If it's a SELL order, check we have enough quantity to sell
+            if trans_type == '解約':
+                cur.execute('SELECT Unit FROM POSITION as POS WHERE POS.FundID = ? AND AtDate = ?', (fund_id, reception_date))
+                total_units = cur.fetchone()[0] or 0
+                if total_units < quantity:
+                    raise ValueError(f'Not enough units to sell for fund {fund_id} at {reception_date} (have {total_units:,}, trying to sell {quantity:,}).')
+
+
+            #seems not a sell or quatity is enough
+            cur.execute('INSERT OR IGNORE INTO XACT (TradeDate, ExecutionDate, XactType, FundID, Unit, XactPrice, UnitPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            (reception_date, reception_date, trans_type, fund_id, quantity, amount, unitprice))
+            conn.commit()
+            flash('Transaction registered successfully.', 'success')
+
+            # Recalculate positions since the transaction date -1d in case
+            start_date = datetime.datetime.strptime(reception_date, '%Y-%m-%d') - datetime.timedelta(days=1)
+            recalculate_positions(start_date=start_date, fund_id=int(fund_id))
+            return start_date
+        else:
+            flash(f'Ignoring duplicate transaction for fund {fund_id} on {reception_date} with quantity {quantity} and type {trans_type}.', 'warning')
+            return None
+    finally:
+        conn.close()
+
+
+
+def delete_todays_transactions(start_date_included=None):
+    """Deletes all transactions for today from the database."""
+    conn = sqlite3.connect(conf['DB_PATH'])
+    cur = conn.cursor()
+    try:
+        if start_date_included is None:
+            start_date_included = datetime.datetime.now()
+        today = start_date_included.strftime('%Y-%m-%d')
+        cur.execute('DELETE FROM XACT WHERE TradeDate >= ?', (today,))
+        conn.commit()
+
+        #and recalculate positions from the start date for ALL FUNDS
+        recalculate_positions(start_date=start_date_included, fund_id=None)
+    finally:
+        conn.close()

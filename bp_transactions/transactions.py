@@ -1,9 +1,7 @@
 
 from flask import render_template, request, Blueprint, redirect, url_for, flash
-from shared import get_transactions, get_all_funds, recalculate_positions
-import sqlite3
+from shared import get_transactions, get_all_funds, xact_save_to_db
 from config import conf
-import datetime
 
 bp_transactions = Blueprint('bp_transactions', __name__)
 
@@ -41,38 +39,7 @@ def register_transaction():
 
 
 
-def xact_save_to_db(fund_id, trans_type, reception_date, quantity, amount, unitprice):
-    conn = sqlite3.connect(conf['DB_PATH'])
-    cur = conn.cursor()
 
-    try:
-        # first check if not already exists a transaction with same fund_id, reception_date, quantity
-        cur.execute('SELECT COUNT(*) FROM XACT WHERE FundID = ? AND TradeDate = ? AND Unit = ? AND XactType = ?',
-                    (fund_id, reception_date, quantity, trans_type))
-        if cur.fetchone()[0] == 0:
-            # If it's a SELL order, check we have enough quantity to sell
-            if trans_type == '解約':
-                cur.execute('SELECT Unit FROM POSITION as POS WHERE POS.FundID = ? AND AtDate = ?', (fund_id, reception_date))
-                total_units = cur.fetchone()[0] or 0
-                if total_units < quantity:
-                    raise ValueError(f'Not enough units to sell for fund {fund_id} at {reception_date} (have {total_units:,}, trying to sell {quantity:,}).')
-
-
-            #seems not a sell or quatity is enough
-            cur.execute('INSERT OR IGNORE INTO XACT (TradeDate, ExecutionDate, XactType, FundID, Unit, XactPrice, UnitPrice) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            (reception_date, reception_date, trans_type, fund_id, quantity, amount, unitprice))
-            conn.commit()
-            flash('Transaction registered successfully.', 'success')
-
-            # Recalculate positions since the transaction date -1d in case
-            start_date = datetime.datetime.strptime(reception_date, '%Y-%m-%d') - datetime.timedelta(days=1)
-            recalculate_positions(start_date=start_date, fund_id=int(fund_id))
-            return start_date
-        else:
-            flash(f'Ignoring duplicate transaction for fund {fund_id} on {reception_date} with quantity {quantity} and type {trans_type}.', 'warning')
-            return None
-    finally:
-        conn.close()
 
 
 @bp_transactions.route('/transactions/csvimportMonex', methods=['POST'])
